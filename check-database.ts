@@ -11,7 +11,7 @@ async function checkDatabase() {
     console.log("1. Testing database connection...");
     const result = await db.execute(sql`SELECT NOW() as current_time`);
     console.log("✅ Database connected successfully");
-    console.log(`   Current time: ${result[0].current_time}\n`);
+    console.log(`   Current time: ${result.rows?.[0]?.now || result[0]?.current_time || 'Unknown'}\n`);
     
     // Check if tables exist
     console.log("2. Checking table existence...");
