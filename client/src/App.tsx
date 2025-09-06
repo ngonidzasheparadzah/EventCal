@@ -16,6 +16,7 @@ import PasswordResetPage from "@/pages/password-reset";
 import PhoneVerificationPage from "@/pages/phone-verification";
 import OnboardingDemo from "@/pages/onboarding-demo";
 import WebsiteType from "@/pages/website-type";
+import GuestSignup from "@/pages/guest-signup";
 import OnboardingEntry from "@/components/onboarding/OnboardingEntry";
 
 function Router() {
@@ -27,6 +28,7 @@ function Router() {
         <>
           <Route path="/" component={OnboardingDemo} />
           <Route path="/website-type" component={WebsiteType} />
+          <Route path="/guest-signup" component={GuestSignup} />
           <Route path="/landing" component={Landing} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/auth/verify" component={EmailVerificationPage} />

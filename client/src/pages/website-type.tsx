@@ -144,7 +144,17 @@ export default function WebsiteType() {
             }}
             onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#174ACC'}
             onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E5EFF'}
-            onClick={() => setLocation('/next-step')}
+            onClick={() => {
+              if (selectedType === 'Guest') {
+                setLocation('/guest-signup');
+              } else if (selectedType === 'Host') {
+                setLocation('/host-signup');
+              } else if (selectedType === 'Service Provider') {
+                setLocation('/service-provider-signup');
+              } else {
+                setLocation('/next-step');
+              }
+            }}
             data-testid="button-continue"
           >
             Continue
