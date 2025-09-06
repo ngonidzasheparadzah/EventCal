@@ -59,10 +59,10 @@ export default function WebsiteType() {
               <button
                 key={type.id}
                 onClick={() => setSelectedType(type.id)}
-                className={`w-full flex flex-col items-center p-3 rounded-lg border-2 transition-all ${
+                className={`w-full flex flex-col items-center p-3 rounded-lg border-2 transition-all duration-200 hover:scale-105 active:scale-95 ${
                   selectedType === type.id 
-                    ? 'border-blue-500 bg-blue-50' 
-                    : 'border-gray-200 bg-white hover:border-gray-300'
+                    ? 'border-blue-500 bg-blue-50 scale-105' 
+                    : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
                 }`}
                 data-testid={`button-select-${type.id.toLowerCase().replace(' ', '-')}`}
               >
@@ -72,11 +72,6 @@ export default function WebsiteType() {
                   }`}>
                     {type.title}
                   </div>
-                  {type.isNew && (
-                    <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
-                      NEW
-                    </div>
-                  )}
                 </div>
                 <span className={`text-xs font-medium ${
                   selectedType === type.id ? 'text-blue-600' : 'text-gray-700'
