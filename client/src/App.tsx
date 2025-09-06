@@ -14,6 +14,7 @@ import AuthPage from "@/pages/auth";
 import EmailVerificationPage from "@/pages/email-verification";
 import PasswordResetPage from "@/pages/password-reset";
 import PhoneVerificationPage from "@/pages/phone-verification";
+import OnboardingDemo from "@/pages/onboarding-demo";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -23,6 +24,7 @@ function Router() {
       {isLoading || !isAuthenticated ? (
         <>
           <Route path="/" component={Landing} />
+          <Route path="/onboarding" component={OnboardingDemo} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/auth/verify" component={EmailVerificationPage} />
           <Route path="/auth/reset-password" component={PasswordResetPage} />

@@ -160,6 +160,18 @@ export default function Landing() {
             Discover unique accommodations from boarding houses to luxury lodges across Harare, Bulawayo, and beyond.
           </p>
           
+          {/* Demo Button */}
+          <div className="mb-8">
+            <Button 
+              onClick={() => setLocation('/onboarding')}
+              variant="outline"
+              className="bg-white/10 backdrop-blur-sm border-white/20 text-primary hover:bg-white hover:text-primary-foreground transition-all duration-200"
+              data-testid="button-onboarding-demo"
+            >
+              🚀 Try Our Onboarding Experience
+            </Button>
+          </div>
+          
           {/* Search Widget */}
           <Card className="floating-search max-w-3xl mx-auto">
             <CardContent className="p-6">
