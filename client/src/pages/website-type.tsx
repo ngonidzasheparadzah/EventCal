@@ -137,14 +137,18 @@ export default function WebsiteType() {
 
           {/* Continue Button */}
           <Button
-            className="w-full h-14 text-lg font-semibold shadow-lg rounded-2xl border-0"
+            disabled={!selectedType}
+            className={`w-full h-14 text-lg font-semibold shadow-lg rounded-2xl border-0 ${
+              !selectedType ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
             style={{ 
-              backgroundColor: '#1E5EFF',
+              backgroundColor: selectedType ? '#1E5EFF' : '#9CA3AF',
               color: '#FFFFFF'
             }}
-            onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#174ACC'}
-            onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E5EFF'}
+            onMouseEnter={(e) => selectedType && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#174ACC')}
+            onMouseLeave={(e) => selectedType && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E5EFF')}
             onClick={() => {
+              console.log('Selected type:', selectedType);
               if (selectedType === 'Guest') {
                 setLocation('/guest-signup');
               } else if (selectedType === 'Host') {
@@ -152,7 +156,13 @@ export default function WebsiteType() {
               } else if (selectedType === 'Service Provider') {
                 setLocation('/service-provider-signup');
               } else {
-                setLocation('/next-step');
+                // If no type is selected, default to Guest
+                if (!selectedType) {
+                  setSelectedType('Guest');
+                  setLocation('/guest-signup');
+                } else {
+                  setLocation('/next-step');
+                }
               }
             }}
             data-testid="button-continue"
