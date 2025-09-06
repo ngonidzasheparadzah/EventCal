@@ -104,7 +104,7 @@ export default function OnboardingDemo() {
             }}
             onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#174ACC'}
             onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E5EFF'}
-            onClick={() => setLocation('/landing')}
+            onClick={() => setLocation('/website-type')}
           >
             Continue
           </Button>
