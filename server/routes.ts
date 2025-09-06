@@ -7,7 +7,9 @@ import {
   insertBookingSchema, 
   insertMessageSchema,
   insertReviewSchema,
-  insertServiceSchema 
+  insertServiceSchema,
+  insertUiComponentSchema,
+  insertComponentUsageSchema,
 } from "@shared/schema";
 import { z } from "zod";
 
@@ -408,6 +410,159 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating user role:", error);
       res.status(500).json({ message: "Failed to update user role" });
+    }
+  });
+
+  // UI Components routes
+  app.get('/api/ui-components', async (req, res) => {
+    try {
+      const filters = {
+        category: req.query.category as string,
+        isActive: req.query.isActive ? req.query.isActive === 'true' : undefined,
+        isPublic: req.query.isPublic ? req.query.isPublic === 'true' : undefined,
+      };
+      
+      const components = await storage.getUIComponents(filters);
+      res.json(components);
+    } catch (error) {
+      console.error("Error fetching UI components:", error);
+      res.status(500).json({ message: "Failed to fetch UI components" });
+    }
+  });
+
+  app.get('/api/ui-components/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const component = await storage.getUIComponent(id);
+      
+      if (!component) {
+        return res.status(404).json({ message: "Component not found" });
+      }
+      
+      res.json(component);
+    } catch (error) {
+      console.error("Error fetching UI component:", error);
+      res.status(500).json({ message: "Failed to fetch UI component" });
+    }
+  });
+
+  app.get('/api/ui-components/name/:name', async (req, res) => {
+    try {
+      const { name } = req.params;
+      const component = await storage.getUIComponentByName(name);
+      
+      if (!component) {
+        return res.status(404).json({ message: "Component not found" });
+      }
+      
+      res.json(component);
+    } catch (error) {
+      console.error("Error fetching UI component by name:", error);
+      res.status(500).json({ message: "Failed to fetch UI component" });
+    }
+  });
+
+  app.post('/api/ui-components', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      // Only allow admins to create UI components
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const componentData = insertUiComponentSchema.parse({
+        ...req.body,
+        createdBy: userId,
+        updatedBy: userId,
+      });
+      
+      const component = await storage.createUIComponent(componentData);
+      res.status(201).json(component);
+    } catch (error) {
+      console.error("Error creating UI component:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid component data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create UI component" });
+    }
+  });
+
+  app.put('/api/ui-components/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      // Only allow admins to update UI components
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const componentData = {
+        ...req.body,
+        updatedBy: userId,
+      };
+      
+      const component = await storage.updateUIComponent(id, componentData);
+      res.json(component);
+    } catch (error) {
+      console.error("Error updating UI component:", error);
+      res.status(500).json({ message: "Failed to update UI component" });
+    }
+  });
+
+  app.delete('/api/ui-components/:id', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      // Only allow admins to delete UI components
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      await storage.deleteUIComponent(id);
+      res.json({ message: "Component deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting UI component:", error);
+      res.status(500).json({ message: "Failed to delete UI component" });
+    }
+  });
+
+  // Component usage tracking
+  app.post('/api/ui-components/track-usage', async (req, res) => {
+    try {
+      const usageData = insertComponentUsageSchema.parse(req.body);
+      const usage = await storage.trackComponentUsage(usageData);
+      res.status(201).json(usage);
+    } catch (error) {
+      console.error("Error tracking component usage:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid usage data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to track component usage" });
+    }
+  });
+
+  app.get('/api/ui-components/:id/analytics', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      // Only allow admins to view analytics
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const { id } = req.params;
+      const analytics = await storage.getComponentAnalytics(id);
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching component analytics:", error);
+      res.status(500).json({ message: "Failed to fetch component analytics" });
     }
   });
 
