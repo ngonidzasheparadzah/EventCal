@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'wouter';
 import { ChevronLeft } from 'lucide-react';
@@ -6,6 +6,21 @@ import { ChevronLeft } from 'lucide-react';
 export default function WebsiteType() {
   const [, setLocation] = useLocation();
   const [selectedType, setSelectedType] = useState<string>('Guest');
+  const tabsContainerRef = useRef<HTMLDivElement>(null);
+
+  // Handle click outside to unselect tabs
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (tabsContainerRef.current && !tabsContainerRef.current.contains(event.target as Node)) {
+        setSelectedType('');
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const websiteTypes = [
     {
@@ -54,7 +69,7 @@ export default function WebsiteType() {
           </div>
 
           {/* Website Type Options */}
-          <div className="space-y-3 mb-12 animate-fade-in-delayed">
+          <div ref={tabsContainerRef} className="space-y-3 mb-12 animate-fade-in-delayed">
             {websiteTypes.map((type) => (
               <button
                 key={type.id}
