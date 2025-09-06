@@ -5,25 +5,25 @@ import { ChevronLeft } from 'lucide-react';
 
 export default function WebsiteType() {
   const [, setLocation] = useLocation();
-  const [selectedType, setSelectedType] = useState<string>('Business');
+  const [selectedType, setSelectedType] = useState<string>('Home');
 
   const websiteTypes = [
     {
-      id: 'Business',
-      label: 'Business',
-      icon: '🏪',
+      id: 'Home',
+      label: "I'm looking for a Home",
+      icon: '🏠',
       isSelected: true
     },
     {
-      id: 'Personal', 
-      label: 'Personal',
-      icon: '📋',
+      id: 'Tenants', 
+      label: "I'm looking for Tenants",
+      icon: '👥',
       isSelected: false
     },
     {
-      id: 'My Links',
-      label: 'My Links',
-      icon: '🗂️',
+      id: 'Clients',
+      label: "I'm looking for Clients",
+      icon: '💼',
       isSelected: false,
       isNew: true
     }
