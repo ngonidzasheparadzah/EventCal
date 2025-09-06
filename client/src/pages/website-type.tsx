@@ -7,11 +7,16 @@ export default function WebsiteType() {
   const [, setLocation] = useLocation();
   const [selectedType, setSelectedType] = useState<string>('');
   const tabsContainerRef = useRef<HTMLDivElement>(null);
+  const continueButtonRef = useRef<HTMLButtonElement>(null);
 
   // Handle click outside to unselect tabs
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (tabsContainerRef.current && !tabsContainerRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const isOutsideTabs = tabsContainerRef.current && !tabsContainerRef.current.contains(target);
+      const isOutsideContinueButton = continueButtonRef.current && !continueButtonRef.current.contains(target);
+      
+      if (isOutsideTabs && isOutsideContinueButton) {
         setSelectedType('');
       }
     };
@@ -135,6 +140,7 @@ export default function WebsiteType() {
 
           {/* Continue Button */}
           <Button
+            ref={continueButtonRef}
             disabled={!selectedType}
             className={`w-full h-14 text-lg font-semibold shadow-lg rounded-2xl border-0 ${
               !selectedType ? 'opacity-50 cursor-not-allowed' : ''
@@ -146,22 +152,14 @@ export default function WebsiteType() {
             onMouseEnter={(e) => selectedType && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#174ACC')}
             onMouseLeave={(e) => selectedType && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E5EFF')}
             onClick={(e) => {
-              console.log('Continue button clicked!');
-              console.log('Selected type:', selectedType);
-              console.log('Button disabled?', !selectedType);
-              e.preventDefault();
+              e.stopPropagation();
               
               if (selectedType === 'Guest') {
-                console.log('Navigating to guest signup...');
                 window.location.href = '/guest-signup';
               } else if (selectedType === 'Host') {
-                console.log('Navigating to host signup...');
                 window.location.href = '/host-signup';
               } else if (selectedType === 'Service Provider') {
-                console.log('Navigating to service provider signup...');
                 window.location.href = '/service-provider-signup';
-              } else {
-                console.log('No type selected - button should be disabled');
               }
             }}
             data-testid="button-continue"
