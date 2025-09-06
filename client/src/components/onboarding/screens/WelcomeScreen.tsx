@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import logoUrl from '@assets/Generated Image September 06, 2025 - 7_21AM_1757162485832.jpeg';
+import interiorImageUrl from '@assets/adc0bb02ab607b07cc71434fa22cb839_1757163627498.jpg';
 
 interface WelcomeScreenProps {
   data: any;
@@ -20,4 +20,90 @@ export default function WelcomeScreen({ onNext }: WelcomeScreenProps) {
   }, []);
 
   return (
-    <div className=\"flex flex-col items-center text-center space-y-8 py-8\" data-testid=\"welcome-screen\">\n      {/* Logo with fade-in animation */}\n      <motion.div\n        initial={{ opacity: 0, y: -20 }}\n        animate={{ opacity: showContent ? 1 : 0, y: showContent ? 0 : -20 }}\n        transition={{ duration: 0.6, ease: \"easeOut\" }}\n        className=\"mb-4\"\n      >\n        <img \n          src={logoUrl} \n          alt=\"RooMe Logo\" \n          className=\"w-24 h-24 mx-auto rounded-2xl shadow-lg\"\n          data-testid=\"logo\"\n        />\n      </motion.div>\n\n      {/* Conversational text bubble */}\n      <motion.div\n        initial={{ opacity: 0, scale: 0.9, y: 20 }}\n        animate={{ \n          opacity: showContent ? 1 : 0, \n          scale: showContent ? 1 : 0.9, \n          y: showContent ? 0 : 20 \n        }}\n        transition={{ duration: 0.6, delay: 0.2, ease: \"easeOut\" }}\n        className=\"relative\"\n      >\n        <div className=\"bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-xl border border-gray-100 dark:border-gray-700 max-w-sm mx-auto\">\n          {/* Speech bubble pointer */}\n          <div className=\"absolute -bottom-2 left-1/2 transform -translate-x-1/2\">\n            <div className=\"w-4 h-4 bg-white dark:bg-gray-800 border-l border-b border-gray-100 dark:border-gray-700 transform rotate-45\"></div>\n          </div>\n          \n          <div className=\"space-y-3\">\n            <div className=\"flex items-center space-x-2\">\n              <span className=\"text-2xl\" role=\"img\" aria-label=\"wave\">👋</span>\n              <h1 className=\"text-2xl font-bold text-gray-900 dark:text-gray-100\">\n                Welcome to RooMe\n              </h1>\n            </div>\n            \n            <p className=\"text-gray-600 dark:text-gray-400 leading-relaxed\">\n              Find stays, offer stays, or connect your services in Zimbabwe's premier accommodation platform.\n            </p>\n          </div>\n        </div>\n      </motion.div>\n\n      {/* Hero illustration/image */}\n      <motion.div\n        initial={{ opacity: 0, y: 30 }}\n        animate={{ \n          opacity: showContent ? 1 : 0, \n          y: showContent ? 0 : 30 \n        }}\n        transition={{ duration: 0.6, delay: 0.4, ease: \"easeOut\" }}\n        className=\"w-full max-w-sm mx-auto\"\n      >\n        <div className=\"bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-3xl p-8 shadow-lg\">\n          <div className=\"text-center space-y-4\">\n            {/* Happy people illustration placeholder */}\n            <div className=\"flex justify-center space-x-2\">\n              <div className=\"w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center\">\n                <span className=\"text-white text-lg\" role=\"img\" aria-label=\"person\">🏡</span>\n              </div>\n              <div className=\"w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center\">\n                <span className=\"text-white text-lg\" role=\"img\" aria-label=\"person\">👥</span>\n              </div>\n              <div className=\"w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center\">\n                <span className=\"text-white text-lg\" role=\"img\" aria-label=\"person\">🛠️</span>\n              </div>\n            </div>\n            \n            <div className=\"text-sm text-gray-600 dark:text-gray-400\">\n              <p className=\"font-medium\">Join thousands of happy users</p>\n              <p>connecting across Zimbabwe</p>\n            </div>\n          </div>\n        </div>\n      </motion.div>\n\n      {/* CTA Button */}\n      <motion.div\n        initial={{ opacity: 0, y: 20 }}\n        animate={{ \n          opacity: showContent ? 1 : 0, \n          y: showContent ? 0 : 20 \n        }}\n        transition={{ duration: 0.6, delay: 0.6, ease: \"easeOut\" }}\n        className=\"w-full\"\n      >\n        <Button\n          onClick={onNext}\n          className=\"w-full h-14 text-lg font-semibold bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl\"\n          data-testid=\"button-continue\"\n        >\n          Continue\n        </Button>\n      </motion.div>\n\n      {/* Subtle animation for engagement */}\n      <motion.div\n        animate={{ \n          y: [0, -5, 0],\n          rotate: [0, 1, -1, 0]\n        }}\n        transition={{ \n          duration: 4, \n          repeat: Infinity, \n          repeatType: \"reverse\",\n          ease: \"easeInOut\"\n        }}\n        className=\"absolute top-20 right-8 opacity-20\"\n      >\n        <span className=\"text-6xl\" role=\"img\" aria-label=\"house\">🏠</span>\n      </motion.div>\n\n      <motion.div\n        animate={{ \n          y: [0, 5, 0],\n          rotate: [0, -1, 1, 0]\n        }}\n        transition={{ \n          duration: 5, \n          repeat: Infinity, \n          repeatType: \"reverse\",\n          ease: \"easeInOut\",\n          delay: 1\n        }}\n        className=\"absolute bottom-32 left-8 opacity-20\"\n      >\n        <span className=\"text-4xl\" role=\"img\" aria-label=\"star\">⭐</span>\n      </motion.div>\n    </div>\n  );\n}
+    <div className="flex flex-col items-center text-center space-y-8 py-8 px-4 min-h-screen justify-center" data-testid="welcome-screen">
+      {/* Main Title */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: showContent ? 1 : 0, y: showContent ? 0 : -20 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="mt-8"
+      >
+        <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
+          Welcome to RooMe.
+        </h1>
+      </motion.div>
+
+      {/* Hero Image */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ 
+          opacity: showContent ? 1 : 0, 
+          scale: showContent ? 1 : 0.9, 
+          y: showContent ? 0 : 20 
+        }}
+        transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+        className="w-full max-w-xs mx-auto"
+      >
+        <div className="relative overflow-hidden rounded-3xl shadow-2xl">
+          <img 
+            src={interiorImageUrl} 
+            alt="Beautiful modern living room" 
+            className="w-full h-80 object-cover"
+            data-testid="hero-image"
+          />
+          {/* Subtle overlay for better visual depth */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent"></div>
+        </div>
+      </motion.div>
+
+      {/* Subtitle */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ 
+          opacity: showContent ? 1 : 0, 
+          y: showContent ? 0 : 20 
+        }}
+        transition={{ duration: 0.6, delay: 0.4, ease: "easeOut" }}
+        className="px-4 max-w-sm"
+      >
+        <p className="text-lg text-gray-600 dark:text-gray-400 font-medium leading-relaxed">
+          Find accommodation across Zimbabwe
+        </p>
+      </motion.div>
+
+      {/* Progress Dots */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: showContent ? 1 : 0 }}
+        transition={{ duration: 0.6, delay: 0.6 }}
+        className="flex space-x-2"
+      >
+        <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+        <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+        <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+      </motion.div>
+
+      {/* Spacer to push button to bottom */}
+      <div className="flex-1"></div>
+
+      {/* CTA Button */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ 
+          opacity: showContent ? 1 : 0, 
+          y: showContent ? 0 : 20 
+        }}
+        transition={{ duration: 0.6, delay: 0.8, ease: "easeOut" }}
+        className="w-full px-4 mt-auto"
+      >
+        <Button
+          onClick={onNext}
+          className="w-full h-14 text-lg font-semibold bg-cyan-400 hover:bg-cyan-500 text-white shadow-lg hover:shadow-xl transition-all duration-200 rounded-2xl border-0"
+          data-testid="button-continue"
+        >
+          Continue
+        </Button>
+      </motion.div>
+    </div>
+  );
+}

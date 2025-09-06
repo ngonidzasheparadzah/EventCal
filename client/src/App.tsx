@@ -15,6 +15,7 @@ import EmailVerificationPage from "@/pages/email-verification";
 import PasswordResetPage from "@/pages/password-reset";
 import PhoneVerificationPage from "@/pages/phone-verification";
 import OnboardingDemo from "@/pages/onboarding-demo";
+import OnboardingEntry from "@/components/onboarding/OnboardingEntry";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
