@@ -56,11 +56,44 @@ transition-all duration-200 hover:scale-105 active:scale-95
 - Bold titles with `text-lg font-bold`
 
 #### 3. Visual Design System
-**Primary Colors**:
-- RooMe Blue: `#1E5EFF`
-- Hover Blue: `#174ACC` 
-- Text Charcoal: `#2C2C2C`
-- White: `#FFFFFF`
+**Primary Brand Colors**:
+- RooMe Blue: `#1E5EFF` - Primary brand color, buttons, selection states
+- Hover Blue: `#174ACC` - Button hover states, active interactions
+- Text Charcoal: `#2C2C2C` - Primary text color, headlines
+- White: `#FFFFFF` - Button text, card backgrounds
+
+**User Type Colors**:
+- Guest Green: `#16A34A` - Guest icon and text (`text-green-600`)
+- Guest Green Light: `#DCFCE7` - Guest icon background (`bg-green-100`)
+- Host Purple: `#9333EA` - Host icon and text (`text-purple-600`)
+- Host Purple Light: `#F3E8FF` - Host icon background (`bg-purple-100`)
+- Service Orange: `#EA580C` - Service Provider icon and text (`text-orange-600`)
+- Service Orange Light: `#FED7AA` - Service Provider icon background (`bg-orange-100`)
+
+**UI Grays**:
+- Gray 50: `#F9FAFB` - Page backgrounds
+- Gray 100: `#F3F4F6` - Subtle backgrounds
+- Gray 200: `#E5E7EB` - Borders, dividers
+- Gray 300: `#D1D5DB` - Hover borders
+- Gray 400: `#9CA3AF` - Icon colors, placeholders
+- Gray 500: `#6B7280` - Secondary text
+- Gray 600: `#4B5563` - Icon colors when active
+- Gray 700: `#374151` - Secondary text, labels
+- Gray 800: `#1F2937` - Primary text alternative
+- Gray 900: `#111827` - Darkest text
+
+**Selection & State Colors**:
+- Blue 50: `#EFF6FF` - Selected tab backgrounds
+- Blue 100: `#DBEAFE` - Gradient backgrounds for selected states
+- Blue 300: `#93C5FD` - Hover border colors
+- Blue 500: `#3B82F6` - Selection indicators, active states
+- Blue 600: `#2563EB` - Selected text colors
+
+**Functional Colors**:
+- Success Green: `#10B981` - Success states, confirmations
+- Warning Orange: `#F59E0B` - Warning states, alerts
+- Error Red: `#EF4444` - Error states, validation
+- Info Blue: `#06B6D4` - Information, neutral alerts
 
 **Animation Library**:
 ```css
