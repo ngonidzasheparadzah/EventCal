@@ -269,6 +269,13 @@ export const upsertUserSchema = createInsertSchema(users).pick({
   profileImageUrl: true,
   phoneNumber: true,
   authId: true,
+  emailVerified: true,
+  phoneVerified: true,
+  emailVerifiedAt: true,
+  phoneVerifiedAt: true,
+  lastSignInAt: true,
+  rawUserMetaData: true,
+  rawAppMetaData: true,
 });
 
 export const insertListingSchema = createInsertSchema(listings).omit({
