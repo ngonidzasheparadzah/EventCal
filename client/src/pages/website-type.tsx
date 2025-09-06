@@ -24,8 +24,7 @@ export default function WebsiteType() {
       id: 'Service Provider',
       label: "I'm looking for Clients",
       title: 'Service Provider',
-      isSelected: false,
-      isNew: true
+      isSelected: false
     }
   ];
 
