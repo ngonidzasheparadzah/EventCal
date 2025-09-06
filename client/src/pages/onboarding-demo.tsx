@@ -20,11 +20,11 @@ export default function OnboardingDemo() {
     }
   ];
 
-  // Auto-scroll every 2 seconds
+  // Auto-scroll every 4 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 2000);
+    }, 4000);
 
     return () => clearInterval(interval);
   }, [slides.length]);
