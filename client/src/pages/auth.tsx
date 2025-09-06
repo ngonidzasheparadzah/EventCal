@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -74,6 +76,8 @@ export default function AuthPage() {
           title: "Account created!",
           description: "Please check your email to verify your account.",
         });
+        // Redirect to email verification page
+        setLocation("/auth/verify");
       }
     } catch (error) {
       toast({

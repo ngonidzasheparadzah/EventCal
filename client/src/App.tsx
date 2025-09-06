@@ -11,6 +11,7 @@ import PropertyDetails from "@/pages/property-details";
 import HostDashboard from "@/pages/host-dashboard";
 import SearchResults from "@/pages/search-results";
 import AuthPage from "@/pages/auth";
+import EmailVerificationPage from "@/pages/email-verification";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -21,6 +22,7 @@ function Router() {
         <>
           <Route path="/" component={Landing} />
           <Route path="/auth" component={AuthPage} />
+          <Route path="/auth/verify" component={EmailVerificationPage} />
         </>
       ) : (
         <>

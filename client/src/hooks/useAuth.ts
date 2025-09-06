@@ -55,7 +55,8 @@ export function useAuth() {
       email,
       password,
       options: {
-        data: metadata
+        data: metadata,
+        emailRedirectTo: `${window.location.origin}/auth/verify`
       }
     });
     return { data, error };
@@ -77,13 +78,30 @@ export function useAuth() {
     return { error };
   };
 
+  const resendEmailVerification = async () => {
+    if (!session?.user?.email) {
+      return { error: { message: "No email found" } };
+    }
+    
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: session.user.email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/verify`
+      }
+    });
+    return { error };
+  };
+
   return {
     user,
     session,
     isLoading: isLoading || userLoading,
     isAuthenticated: !!session && !!user,
+    isEmailVerified: session?.user?.email_confirmed_at != null,
     signUp,
     signIn,
     signOut,
+    resendEmailVerification,
   };
 }
