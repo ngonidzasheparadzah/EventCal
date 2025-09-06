@@ -11,11 +11,11 @@ export default function OnboardingDemo() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 py-8">
       <div className="w-full max-w-sm mx-auto flex flex-col justify-center min-h-screen space-y-6">
         {/* Logo */}
-        <div className="text-center pt-8">
+        <div className="text-center pt-4">
           <img 
             src={logoUrl} 
             alt="RooMe Logo" 
-            className="w-16 h-16 mx-auto mb-4"
+            className="w-48 h-48 mx-auto mb-6"
           />
           <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
             Welcome to RooMe.
