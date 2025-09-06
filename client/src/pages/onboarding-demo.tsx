@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { useLocation } from 'wouter';
 import interiorImageUrl from '@assets/adc0bb02ab607b07cc71434fa22cb839_1757163627498.jpg';
 import propertyImageUrl from '@assets/4d8f2d40ea93693d1b35f72e0700f452_1757166284914.jpg';
+import servicesImageUrl from '@assets/02e413ffda63af7c548cfa3128373ec2_1757166641084.jpg';
 import logoUrl from '@assets/BackgroundEraser_20250906_144355719_1757164631834.png';
 
 export default function OnboardingDemo() {
@@ -17,6 +18,10 @@ export default function OnboardingDemo() {
     {
       image: propertyImageUrl,
       text: "List your property"
+    },
+    {
+      image: servicesImageUrl,
+      text: "Provide Services"
     }
   ];
 
