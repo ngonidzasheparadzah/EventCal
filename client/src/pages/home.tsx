@@ -10,6 +10,7 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import MobileNav from "@/components/layout/mobile-nav";
 import EmailVerificationBanner from "@/components/email-verification-banner";
+import { PhoneVerificationBanner } from "@/components/phone-verification-banner";
 import PropertyCard from "@/components/property/property-card";
 import { SearchFilters, Listing } from "@/types";
 import { Search, MapPin } from "lucide-react";
@@ -63,6 +64,7 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       <Header />
       <EmailVerificationBanner />
+      <PhoneVerificationBanner />
       
       {/* Hero Section */}
       <section className="relative bg-gradient-to-b from-primary/5 to-background py-12 md:py-20">

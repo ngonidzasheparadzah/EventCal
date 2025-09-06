@@ -13,6 +13,7 @@ import SearchResults from "@/pages/search-results";
 import AuthPage from "@/pages/auth";
 import EmailVerificationPage from "@/pages/email-verification";
 import PasswordResetPage from "@/pages/password-reset";
+import PhoneVerificationPage from "@/pages/phone-verification";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -32,6 +33,7 @@ function Router() {
           <Route path="/property/:id" component={PropertyDetails} />
           <Route path="/host/dashboard" component={HostDashboard} />
           <Route path="/search" component={SearchResults} />
+          <Route path="/profile/phone-verification" component={PhoneVerificationPage} />
         </>
       )}
       <Route component={NotFound} />
