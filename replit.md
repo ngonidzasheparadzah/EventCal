@@ -2,6 +2,14 @@
 
 RooMe Zimbabwe is a full-stack accommodation booking platform built specifically for Zimbabwe's hospitality market. The application enables users to search and book various types of accommodations including boarding houses, private rooms, lodges, hotels, apartments, and guesthouses. The platform features a dual-sided marketplace connecting property hosts with guests, offering comprehensive property management tools, booking systems, and communication features.
 
+## Recent Progress (January 2025)
+
+### Onboarding Experience
+- **Welcome Screen Carousel**: Auto-scrolling image carousel (4s intervals) with three slides: "Find accommodation across Zimbabwe", "List your property", "Provide Services"
+- **Website Type Selection**: Clean, animated page asking "What best describes your visit to RooMe?" with Business/Personal/My Links options
+- **Visual Design**: Implemented RooMe blue branding (#1E5EFF), charcoal text (#2C2C2C), proper mobile/web responsiveness
+- **User Flow**: Welcome carousel → Continue → Website type selection with smooth animations
+
 # User Preferences
 
 Preferred communication style: Simple, everyday language.
