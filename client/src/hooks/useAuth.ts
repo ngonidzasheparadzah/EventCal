@@ -107,17 +107,44 @@ export function useAuth() {
     return { error };
   };
 
+  const sendPhoneOTP = async (phone: string) => {
+    const { error } = await supabase.auth.signInWithOtp({
+      phone: phone,
+    });
+    return { error };
+  };
+
+  const verifyPhoneOTP = async (phone: string, token: string) => {
+    const { data, error } = await supabase.auth.verifyOtp({
+      phone: phone,
+      token: token,
+      type: 'sms'
+    });
+    return { data, error };
+  };
+
+  const updateUserPhone = async (phone: string) => {
+    const { error } = await supabase.auth.updateUser({
+      phone: phone
+    });
+    return { error };
+  };
+
   return {
     user,
     session,
     isLoading: isLoading || userLoading,
     isAuthenticated: !!session && !!user,
     isEmailVerified: session?.user?.email_confirmed_at != null,
+    isPhoneVerified: session?.user?.phone_confirmed_at != null,
     signUp,
     signIn,
     signOut,
     resendEmailVerification,
     resetPassword,
     updatePassword,
+    sendPhoneOTP,
+    verifyPhoneOTP,
+    updateUserPhone,
   };
 }
