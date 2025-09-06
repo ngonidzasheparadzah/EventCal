@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'wouter';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Home, Building, Wrench } from 'lucide-react';
 
 export default function WebsiteType() {
   const [, setLocation] = useLocation();
@@ -27,18 +27,24 @@ export default function WebsiteType() {
       id: 'Guest',
       label: "I'm looking for a Home",
       title: 'Guest',
+      description: 'Find and book accommodation',
+      icon: Home,
       isSelected: true
     },
     {
       id: 'Host', 
       label: "I'm looking for Tenants",
       title: 'Host',
+      description: 'List your property for guests',
+      icon: Building,
       isSelected: false
     },
     {
       id: 'Service Provider',
       label: "I'm looking for Clients",
       title: 'Service Provider',
+      description: 'Offer services to hosts & guests',
+      icon: Wrench,
       isSelected: false
     }
   ];
@@ -74,27 +80,46 @@ export default function WebsiteType() {
               <button
                 key={type.id}
                 onClick={() => setSelectedType(type.id)}
-                className={`w-full flex flex-col items-center p-3 rounded-lg border-2 transition-all duration-150 ease-out hover:scale-105 active:scale-95 ${
+                className={`w-full flex items-center p-6 rounded-xl border-2 transition-all duration-150 ease-out hover:scale-105 active:scale-95 shadow-sm ${
                   selectedType === type.id 
-                    ? 'border-blue-500 bg-blue-50 scale-105' 
-                    : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
+                    ? 'border-blue-500 bg-gradient-to-r from-blue-50 to-blue-100 scale-105 shadow-lg' 
+                    : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-lg hover:bg-gray-50'
                 }`}
                 data-testid={`button-select-${type.id.toLowerCase().replace(' ', '-')}`}
               >
-                <div className="relative">
-                  <div className={`text-lg font-bold mb-2 ${
+                {/* Icon */}
+                <div className={`mr-4 p-3 rounded-full ${
+                  selectedType === type.id 
+                    ? 'bg-blue-500 text-white' 
+                    : 'bg-gray-100 text-gray-600'
+                }`}>
+                  <type.icon className="w-6 h-6" />
+                </div>
+
+                {/* Content */}
+                <div className="flex-1">
+                  <div className={`text-lg font-bold mb-1 ${
                     selectedType === type.id ? 'text-blue-600' : 'text-gray-800'
                   }`}>
                     {type.title}
                   </div>
+                  <div className={`text-sm font-medium mb-1 ${
+                    selectedType === type.id ? 'text-blue-600' : 'text-gray-700'
+                  }`}>
+                    {type.label}
+                  </div>
+                  <div className={`text-xs ${
+                    selectedType === type.id ? 'text-blue-500' : 'text-gray-500'
+                  }`}>
+                    {type.description}
+                  </div>
                 </div>
-                <span className={`text-xs font-medium ${
-                  selectedType === type.id ? 'text-blue-600' : 'text-gray-700'
-                }`}>
-                  {type.label}
-                </span>
+
+                {/* Selection Indicator */}
                 {selectedType === type.id && (
-                  <div className="w-full h-1 bg-blue-500 rounded-full mt-2"></div>
+                  <div className="ml-2">
+                    <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  </div>
                 )}
               </button>
             ))}
