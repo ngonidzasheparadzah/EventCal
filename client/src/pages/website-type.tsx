@@ -51,18 +51,15 @@ export default function WebsiteType() {
       {/* Character and Question */}
       <div className="flex-1 px-4 py-2">
         <div className="max-w-sm mx-auto">
-          {/* Character */}
-          <div className="flex items-start mb-6">
-            <div className="text-4xl mr-4">🤖</div>
-            <div className="bg-white rounded-3xl rounded-tl-sm p-6 shadow-sm border border-gray-200 flex-1">
-              <p className="text-lg font-medium text-gray-900">
-                What type of website are you creating?
-              </p>
-            </div>
+          {/* Question */}
+          <div className="text-center mb-8 animate-fade-in">
+            <h1 className="text-base font-medium text-gray-900">
+              What best describes your visit to RooMe?
+            </h1>
           </div>
 
           {/* Website Type Options */}
-          <div className="space-y-4 mb-8">
+          <div className="space-y-4 mb-8 animate-fade-in-delayed">
             {websiteTypes.map((type) => (
               <button
                 key={type.id}
