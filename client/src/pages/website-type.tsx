@@ -5,25 +5,25 @@ import { ChevronLeft } from 'lucide-react';
 
 export default function WebsiteType() {
   const [, setLocation] = useLocation();
-  const [selectedType, setSelectedType] = useState<string>('Home');
+  const [selectedType, setSelectedType] = useState<string>('Guest');
 
   const websiteTypes = [
     {
-      id: 'Home',
+      id: 'Guest',
       label: "I'm looking for a Home",
-      icon: '🏠',
+      title: 'Guest',
       isSelected: true
     },
     {
-      id: 'Tenants', 
+      id: 'Host', 
       label: "I'm looking for Tenants",
-      icon: '👥',
+      title: 'Host',
       isSelected: false
     },
     {
-      id: 'Clients',
+      id: 'Service Provider',
       label: "I'm looking for Clients",
-      icon: '💼',
+      title: 'Service Provider',
       isSelected: false,
       isNew: true
     }
@@ -68,7 +68,11 @@ export default function WebsiteType() {
                 data-testid={`button-select-${type.id.toLowerCase().replace(' ', '-')}`}
               >
                 <div className="relative">
-                  <div className="text-xl mb-1">{type.icon}</div>
+                  <div className={`text-lg font-bold mb-2 ${
+                    selectedType === type.id ? 'text-blue-600' : 'text-gray-800'
+                  }`}>
+                    {type.title}
+                  </div>
                   {type.isNew && (
                     <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
                       NEW
