@@ -32,24 +32,20 @@ export default function WebsiteType() {
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-4">
+      <div className="flex items-center p-4">
         <button 
           onClick={() => setLocation('/')}
-          className="p-2 rounded-full hover:bg-gray-200"
+          className="px-4 py-2 rounded-full text-white text-sm font-medium hover:opacity-90 transition-opacity"
+          style={{ backgroundColor: '#1E5EFF' }}
           data-testid="button-back"
         >
-          <ChevronLeft className="w-6 h-6 text-gray-600" />
+          <ChevronLeft className="w-4 h-4 inline mr-1" />
+          Back
         </button>
-        <div 
-          className="px-6 py-2 rounded-full text-white text-sm font-medium"
-          style={{ backgroundColor: '#1E5EFF' }}
-        >
-          Skip
-        </div>
       </div>
 
       {/* Character and Question */}
-      <div className="flex-1 px-4 py-2">
+      <div className="flex-1 px-4 py-4 flex flex-col justify-center">
         <div className="max-w-sm mx-auto">
           {/* Question */}
           <div className="text-center mb-8 animate-fade-in">
@@ -59,12 +55,12 @@ export default function WebsiteType() {
           </div>
 
           {/* Website Type Options */}
-          <div className="space-y-4 mb-8 animate-fade-in-delayed">
+          <div className="space-y-3 mb-12 animate-fade-in-delayed">
             {websiteTypes.map((type) => (
               <button
                 key={type.id}
                 onClick={() => setSelectedType(type.id)}
-                className={`w-full flex flex-col items-center p-4 rounded-xl border-2 transition-all ${
+                className={`w-full flex flex-col items-center p-3 rounded-lg border-2 transition-all ${
                   selectedType === type.id 
                     ? 'border-blue-500 bg-blue-50' 
                     : 'border-gray-200 bg-white hover:border-gray-300'
@@ -72,43 +68,23 @@ export default function WebsiteType() {
                 data-testid={`button-select-${type.id.toLowerCase().replace(' ', '-')}`}
               >
                 <div className="relative">
-                  <div className="text-2xl mb-1">{type.icon}</div>
+                  <div className="text-xl mb-1">{type.icon}</div>
                   {type.isNew && (
                     <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">
                       NEW
                     </div>
                   )}
                 </div>
-                <span className={`text-sm font-medium ${
+                <span className={`text-xs font-medium ${
                   selectedType === type.id ? 'text-blue-600' : 'text-gray-700'
                 }`}>
                   {type.label}
                 </span>
                 {selectedType === type.id && (
-                  <div className="w-full h-1 bg-blue-500 rounded-full mt-3"></div>
+                  <div className="w-full h-1 bg-blue-500 rounded-full mt-2"></div>
                 )}
               </button>
             ))}
-          </div>
-
-          {/* Business Description Image and Text */}
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-200 mb-8">
-            <div className="w-full h-48 bg-gray-100 rounded-2xl mb-4 overflow-hidden">
-              <img 
-                src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=300&fit=crop&crop=center"
-                alt="Business team working"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <p className="text-center text-gray-700 font-medium">
-              Get your business online and showcase your services
-            </p>
-          </div>
-
-          {/* Progress Dots */}
-          <div className="flex justify-center space-x-2 mb-8">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#1E5EFF' }}></div>
-            <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
           </div>
 
           {/* Continue Button */}
