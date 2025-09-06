@@ -14,18 +14,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 
-// Session storage table (mandatory for Replit Auth)
-export const sessions = pgTable(
-  "sessions",
-  {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
-    expire: timestamp("expire").notNull(),
-  },
-  (table) => [index("IDX_session_expire").on(table.expire)],
-);
-
-// User storage table (mandatory for Replit Auth)
+// User storage table (compatible with Supabase Auth)
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   email: varchar("email").unique(),
@@ -36,6 +25,8 @@ export const users = pgTable("users", {
   role: varchar("role").notNull().default("guest"), // guest, host, admin
   isVerified: boolean("is_verified").notNull().default(false),
   verificationStatus: varchar("verification_status").default("pending"), // pending, verified, rejected
+  // Supabase Auth fields
+  authId: varchar("auth_id").unique(), // maps to Supabase auth.users.id
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -269,6 +260,7 @@ export const upsertUserSchema = createInsertSchema(users).pick({
   lastName: true,
   profileImageUrl: true,
   phoneNumber: true,
+  authId: true,
 });
 
 export const insertListingSchema = createInsertSchema(listings).omit({
