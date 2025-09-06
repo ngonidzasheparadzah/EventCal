@@ -145,17 +145,23 @@ export default function WebsiteType() {
             }}
             onMouseEnter={(e) => selectedType && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#174ACC')}
             onMouseLeave={(e) => selectedType && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E5EFF')}
-            onClick={() => {
+            onClick={(e) => {
+              console.log('Continue button clicked!');
               console.log('Selected type:', selectedType);
+              console.log('Button disabled?', !selectedType);
+              e.preventDefault();
               
               if (selectedType === 'Guest') {
+                console.log('Navigating to guest signup...');
                 window.location.href = '/guest-signup';
               } else if (selectedType === 'Host') {
+                console.log('Navigating to host signup...');
                 window.location.href = '/host-signup';
               } else if (selectedType === 'Service Provider') {
+                console.log('Navigating to service provider signup...');
                 window.location.href = '/service-provider-signup';
               } else {
-                console.log('No type selected');
+                console.log('No type selected - button should be disabled');
               }
             }}
             data-testid="button-continue"
