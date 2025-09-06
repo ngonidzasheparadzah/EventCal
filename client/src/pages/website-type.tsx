@@ -149,7 +149,10 @@ export default function WebsiteType() {
             onMouseLeave={(e) => selectedType && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E5EFF')}
             onClick={() => {
               console.log('Selected type:', selectedType);
+              console.log('Navigating to guest signup...');
+              
               if (selectedType === 'Guest') {
+                console.log('Setting location to /guest-signup');
                 setLocation('/guest-signup');
               } else if (selectedType === 'Host') {
                 setLocation('/host-signup');
@@ -164,6 +167,11 @@ export default function WebsiteType() {
                   setLocation('/next-step');
                 }
               }
+              
+              // Add a small delay to ensure navigation happens
+              setTimeout(() => {
+                console.log('Current location after navigation attempt:', window.location.pathname);
+              }, 100);
             }}
             data-testid="button-continue"
           >
