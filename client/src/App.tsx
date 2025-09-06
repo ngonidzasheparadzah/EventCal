@@ -24,8 +24,8 @@ function Router() {
     <Switch>
       {isLoading || !isAuthenticated ? (
         <>
-          <Route path="/" component={Landing} />
-          <Route path="/onboarding" component={OnboardingDemo} />
+          <Route path="/" component={OnboardingDemo} />
+          <Route path="/landing" component={Landing} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/auth/verify" component={EmailVerificationPage} />
           <Route path="/auth/reset-password" component={PasswordResetPage} />
