@@ -132,6 +132,17 @@ export default function WebsiteType() {
             ))}
           </div>
 
+          {/* Test Link for debugging */}
+          <div className="text-center mb-4">
+            <a 
+              href="/guest-signup" 
+              className="text-blue-600 underline text-sm"
+              data-testid="test-link-guest-signup"
+            >
+              Test Direct Link to Guest Signup
+            </a>
+          </div>
+
           {/* Continue Button */}
           <Button
             disabled={!selectedType}
@@ -146,29 +157,24 @@ export default function WebsiteType() {
             onMouseLeave={(e) => selectedType && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E5EFF')}
             onClick={() => {
               console.log('Selected type:', selectedType);
-              console.log('Navigating to guest signup...');
               
               if (selectedType === 'Guest') {
-                console.log('Setting location to /guest-signup');
-                setLocation('/guest-signup');
+                console.log('Attempting to navigate to guest signup');
+                // Try using window.location as backup
+                try {
+                  setLocation('/guest-signup');
+                  console.log('setLocation called');
+                } catch (error) {
+                  console.error('setLocation failed:', error);
+                  window.location.href = '/guest-signup';
+                }
               } else if (selectedType === 'Host') {
                 setLocation('/host-signup');
               } else if (selectedType === 'Service Provider') {
                 setLocation('/service-provider-signup');
               } else {
-                // If no type is selected, default to Guest
-                if (!selectedType) {
-                  setSelectedType('Guest');
-                  setLocation('/guest-signup');
-                } else {
-                  setLocation('/next-step');
-                }
+                console.log('No type selected');
               }
-              
-              // Add a small delay to ensure navigation happens
-              setTimeout(() => {
-                console.log('Current location after navigation attempt:', window.location.pathname);
-              }, 100);
             }}
             data-testid="button-continue"
           >
