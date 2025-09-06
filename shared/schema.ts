@@ -26,7 +26,15 @@ export const users = pgTable("users", {
   isVerified: boolean("is_verified").notNull().default(false),
   verificationStatus: varchar("verification_status").default("pending"), // pending, verified, rejected
   // Supabase Auth fields
-  authId: varchar("auth_id").unique(), // maps to Supabase auth.users.id
+  authId: varchar("auth_id").unique().notNull(), // maps to Supabase auth.users.id
+  emailVerified: boolean("email_verified").notNull().default(false),
+  phoneVerified: boolean("phone_verified").notNull().default(false),
+  emailVerifiedAt: timestamp("email_verified_at"),
+  phoneVerifiedAt: timestamp("phone_verified_at"),
+  lastSignInAt: timestamp("last_sign_in_at"),
+  // Additional Supabase metadata
+  rawUserMetaData: jsonb("raw_user_meta_data").default({}),
+  rawAppMetaData: jsonb("raw_app_meta_data").default({}),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
