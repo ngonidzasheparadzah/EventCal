@@ -74,7 +74,7 @@ export default function WebsiteType() {
               <button
                 key={type.id}
                 onClick={() => setSelectedType(type.id)}
-                className={`w-full flex flex-col items-center p-3 rounded-lg border-2 transition-all duration-200 hover:scale-105 active:scale-95 ${
+                className={`w-full flex flex-col items-center p-3 rounded-lg border-2 transition-all duration-150 ease-out hover:scale-105 active:scale-95 ${
                   selectedType === type.id 
                     ? 'border-blue-500 bg-blue-50 scale-105' 
                     : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-md'
