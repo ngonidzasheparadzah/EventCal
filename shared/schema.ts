@@ -187,6 +187,56 @@ export const userPreferences = pgTable("user_preferences", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Dynamic UI Components for reusability
+export const uiComponents = pgTable("ui_components", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull().unique(), // e.g., "property-card-featured", "hero-banner-home"
+  displayName: varchar("display_name").notNull(), // Human-readable name
+  description: text("description"), // What this component does
+  category: varchar("category").notNull(), // card, banner, form, layout, etc.
+  componentType: varchar("component_type").notNull(), // react, html, custom
+  version: varchar("version").notNull().default("1.0.0"), // Semantic versioning
+  isActive: boolean("is_active").notNull().default(true),
+  isPublic: boolean("is_public").notNull().default(false), // Available to all users
+  // JSON configuration for the component
+  config: jsonb("config").notNull(), // Component props, styling, structure
+  // HTML/React template (if applicable)
+  template: text("template"), // JSX/HTML template string
+  // CSS styling configuration
+  styles: jsonb("styles").default({}), // Tailwind classes, custom CSS
+  // Component behavior and interactions
+  interactions: jsonb("interactions").default({}), // Click handlers, animations
+  // Responsive configuration
+  responsive: jsonb("responsive").default({}), // Mobile, tablet, desktop variants
+  // A/B testing and variants
+  variants: jsonb("variants").default([]), // Different versions for testing
+  // Usage tracking
+  usageCount: integer("usage_count").notNull().default(0),
+  // Creator and permissions
+  createdBy: varchar("created_by").references(() => users.id),
+  updatedBy: varchar("updated_by").references(() => users.id),
+  // Metadata
+  tags: jsonb("tags").default([]), // For categorization and search
+  dependencies: jsonb("dependencies").default([]), // Required other components
+  previewImage: varchar("preview_image"), // Screenshot or preview URL
+  // Timestamps
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Component usage tracking for analytics
+export const componentUsage = pgTable("component_usage", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  componentId: varchar("component_id").notNull().references(() => uiComponents.id),
+  userId: varchar("user_id").references(() => users.id), // null for anonymous usage
+  page: varchar("page").notNull(), // Where component was used
+  context: jsonb("context").default({}), // Additional context data
+  performanceMetrics: jsonb("performance_metrics").default({}), // Load time, render time
+  userAgent: text("user_agent"),
+  ipAddress: varchar("ip_address"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   listings: many(listings),
@@ -198,6 +248,9 @@ export const usersRelations = relations(users, ({ many }) => ({
   wishlist: many(wishlist),
   services: many(services),
   preferences: many(userPreferences),
+  createdComponents: many(uiComponents, { relationName: "creator" }),
+  updatedComponents: many(uiComponents, { relationName: "updater" }),
+  componentUsage: many(componentUsage),
 }));
 
 export const listingsRelations = relations(listings, ({ one, many }) => ({
@@ -260,6 +313,31 @@ export const reviewsRelations = relations(reviews, ({ one }) => ({
   }),
 }));
 
+export const uiComponentsRelations = relations(uiComponents, ({ one, many }) => ({
+  creator: one(users, {
+    fields: [uiComponents.createdBy],
+    references: [users.id],
+    relationName: "creator",
+  }),
+  updater: one(users, {
+    fields: [uiComponents.updatedBy],
+    references: [users.id],
+    relationName: "updater",
+  }),
+  usage: many(componentUsage),
+}));
+
+export const componentUsageRelations = relations(componentUsage, ({ one }) => ({
+  component: one(uiComponents, {
+    fields: [componentUsage.componentId],
+    references: [uiComponents.id],
+  }),
+  user: one(users, {
+    fields: [componentUsage.userId],
+    references: [users.id],
+  }),
+}));
+
 // Zod schemas
 export const upsertUserSchema = createInsertSchema(users).pick({
   id: true,
@@ -311,6 +389,18 @@ export const insertServiceSchema = createInsertSchema(services).omit({
   reviewCount: true,
 });
 
+export const insertUiComponentSchema = createInsertSchema(uiComponents).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  usageCount: true,
+});
+
+export const insertComponentUsageSchema = createInsertSchema(componentUsage).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type UpsertUser = typeof upsertUserSchema._type;
@@ -326,3 +416,7 @@ export type Service = typeof services.$inferSelect;
 export type InsertService = typeof insertServiceSchema._type;
 export type Analytics = typeof analytics.$inferSelect;
 export type UserPreferences = typeof userPreferences.$inferSelect;
+export type UiComponent = typeof uiComponents.$inferSelect;
+export type InsertUiComponent = typeof insertUiComponentSchema._type;
+export type ComponentUsage = typeof componentUsage.$inferSelect;
+export type InsertComponentUsage = typeof insertComponentUsageSchema._type;
