@@ -17,8 +17,8 @@ export default function OnboardingDemo() {
             alt="RooMe Logo" 
             className="w-32 h-32 mx-auto"
           />
-          <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
-            Welcome to RooMe.
+          <h1 className="text-2xl font-semibold" style={{ color: '#2C2C2C' }}>
+            Welcome to <span style={{ color: '#1E5EFF' }}>RooMe</span>.
           </h1>
         </div>
         
@@ -51,7 +51,13 @@ export default function OnboardingDemo() {
           
           {/* CTA Button */}
           <Button
-            className="w-full h-12 text-lg font-semibold bg-cyan-400 hover:bg-cyan-500 text-white shadow-lg rounded-2xl border-0"
+            className="w-full h-12 text-lg font-semibold shadow-lg rounded-2xl border-0 transition-colors duration-200"
+            style={{ 
+              backgroundColor: '#1E5EFF',
+              color: '#FFFFFF'
+            }}
+            onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#174ACC'}
+            onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E5EFF'}
             onClick={() => setLocation('/landing')}
           >
             Continue
