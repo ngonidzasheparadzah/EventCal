@@ -4,11 +4,79 @@ RooMe Zimbabwe is a full-stack accommodation booking platform built specifically
 
 ## Recent Progress (January 2025)
 
-### Onboarding Experience
-- **Welcome Screen Carousel**: Auto-scrolling image carousel (4s intervals) with three slides: "Find accommodation across Zimbabwe", "List your property", "Provide Services"
-- **Website Type Selection**: Clean, animated page asking "What best describes your visit to RooMe?" with Business/Personal/My Links options
-- **Visual Design**: Implemented RooMe blue branding (#1E5EFF), charcoal text (#2C2C2C), proper mobile/web responsiveness
-- **User Flow**: Welcome carousel → Continue → Website type selection with smooth animations
+### Onboarding Experience Components
+
+#### 1. Welcome Screen Carousel Component
+**File**: `client/src/pages/onboarding-demo.tsx`
+**Description**: Auto-scrolling image carousel with manual controls for onboarding flow
+
+**Features**:
+- Auto-scroll every 4 seconds with `useEffect` timer
+- Manual control via clicking image or progress dots
+- Three slides with dynamic content and images
+- Smooth transitions with CSS `transition-all duration-500`
+
+**Slides Configuration**:
+1. **Find Accommodation**: Interior living room image + "Find accommodation across Zimbabwe"
+2. **List Property**: House exterior with garden + "List your property" 
+3. **Provide Services**: Cleaning supplies image + "Provide Services"
+
+**Styling Patterns**:
+- RooMe blue progress dots (#1E5EFF)
+- Responsive design with `max-w-sm mx-auto`
+- Perfect screen fit with `h-screen` and `justify-between`
+- Smooth image transitions with key-based re-rendering
+
+#### 2. Website Type Selection Component
+**File**: `client/src/pages/website-type.tsx`
+**Description**: User role selection page with animated interactions
+
+**Features**:
+- Three user types: Guest, Host, Service Provider
+- Fade-in animations on page load (0.6s + 0.3s delay)
+- Enhanced scaling animations with hover/active states
+- Dynamic state management with React hooks
+
+**Animation Pattern** (Reusable):
+```css
+transition-all duration-200 hover:scale-105 active:scale-95
+// Selected state: scale-105
+// Hover: hover:shadow-md
+```
+
+**User Types Configuration**:
+1. **Guest**: "I'm looking for a Home" 
+2. **Host**: "I'm looking for Tenants"
+3. **Service Provider**: "I'm looking for Clients"
+
+**Styling Patterns**:
+- Clean, minimal design without mascots or unnecessary elements
+- Compact tabs with `p-3 rounded-lg` 
+- RooMe blue selection state (#1E5EFF)
+- Bold titles with `text-lg font-bold`
+
+#### 3. Visual Design System
+**Primary Colors**:
+- RooMe Blue: `#1E5EFF`
+- Hover Blue: `#174ACC` 
+- Text Charcoal: `#2C2C2C`
+- White: `#FFFFFF`
+
+**Animation Library**:
+```css
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+.animate-fade-in-delayed { opacity: 0; animation: fadeIn 0.6s ease-out 0.3s forwards; }
+```
+
+**Responsive Design Patterns**:
+- Mobile-first with `max-w-sm mx-auto`
+- Perfect screen fitting with `h-screen` containers
+- Centered layouts using flexbox
+- Touch-friendly interactions
 
 # User Preferences
 
