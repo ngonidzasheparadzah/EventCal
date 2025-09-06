@@ -91,7 +91,11 @@ export default function WebsiteType() {
                 <div className={`mr-4 p-3 rounded-full ${
                   selectedType === type.id 
                     ? 'bg-blue-500 text-white' 
-                    : 'bg-gray-100 text-gray-600'
+                    : type.id === 'Guest' 
+                      ? 'bg-green-100 text-green-600'
+                      : type.id === 'Host'
+                      ? 'bg-purple-100 text-purple-600'
+                      : 'bg-orange-100 text-orange-600'
                 }`}>
                   <type.icon className="w-6 h-6" />
                 </div>
