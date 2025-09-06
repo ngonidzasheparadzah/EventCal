@@ -9,6 +9,8 @@ import {
   services,
   analytics,
   userPreferences,
+  uiComponents,
+  componentUsage,
   type User,
   type UpsertUser,
   type Listing,
@@ -23,6 +25,10 @@ import {
   type InsertService,
   type Analytics,
   type UserPreferences,
+  type UiComponent,
+  type InsertUiComponent,
+  type ComponentUsage,
+  type InsertComponentUsage,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, asc, sql, ilike, gte, lte, inArray } from "drizzle-orm";
@@ -80,6 +86,19 @@ export interface IStorage {
   
   // Search operations
   searchListings(query: string, filters?: any): Promise<Listing[]>;
+  
+  // UI Components operations
+  getUIComponents(filters?: { category?: string; isActive?: boolean; isPublic?: boolean }): Promise<UiComponent[]>;
+  getUIComponent(id: string): Promise<UiComponent | undefined>;
+  getUIComponentByName(name: string): Promise<UiComponent | undefined>;
+  createUIComponent(component: InsertUiComponent): Promise<UiComponent>;
+  updateUIComponent(id: string, component: Partial<InsertUiComponent>): Promise<UiComponent>;
+  deleteUIComponent(id: string): Promise<void>;
+  incrementComponentUsage(id: string): Promise<void>;
+  
+  // Component usage tracking
+  trackComponentUsage(usage: InsertComponentUsage): Promise<ComponentUsage>;
+  getComponentAnalytics(componentId: string): Promise<any>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -362,6 +381,96 @@ export class DatabaseStorage implements IStorage {
     }
 
     return await dbQuery.orderBy(desc(listings.rating), desc(listings.createdAt));
+  }
+
+  // UI Components operations
+  async getUIComponents(filters?: { category?: string; isActive?: boolean; isPublic?: boolean }): Promise<UiComponent[]> {
+    let query = db.select().from(uiComponents);
+    
+    const conditions = [];
+    if (filters?.category) {
+      conditions.push(eq(uiComponents.category, filters.category));
+    }
+    if (filters?.isActive !== undefined) {
+      conditions.push(eq(uiComponents.isActive, filters.isActive));
+    }
+    if (filters?.isPublic !== undefined) {
+      conditions.push(eq(uiComponents.isPublic, filters.isPublic));
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    return await query.orderBy(desc(uiComponents.createdAt));
+  }
+
+  async getUIComponent(id: string): Promise<UiComponent | undefined> {
+    const [component] = await db.select().from(uiComponents).where(eq(uiComponents.id, id));
+    return component;
+  }
+
+  async getUIComponentByName(name: string): Promise<UiComponent | undefined> {
+    const [component] = await db.select().from(uiComponents).where(eq(uiComponents.name, name));
+    return component;
+  }
+
+  async createUIComponent(component: InsertUiComponent): Promise<UiComponent> {
+    const [newComponent] = await db.insert(uiComponents).values(component).returning();
+    return newComponent;
+  }
+
+  async updateUIComponent(id: string, component: Partial<InsertUiComponent>): Promise<UiComponent> {
+    const [updatedComponent] = await db
+      .update(uiComponents)
+      .set({ ...component, updatedAt: new Date() })
+      .where(eq(uiComponents.id, id))
+      .returning();
+    return updatedComponent;
+  }
+
+  async deleteUIComponent(id: string): Promise<void> {
+    await db.delete(uiComponents).where(eq(uiComponents.id, id));
+  }
+
+  async incrementComponentUsage(id: string): Promise<void> {
+    await db
+      .update(uiComponents)
+      .set({ usageCount: sql`${uiComponents.usageCount} + 1` })
+      .where(eq(uiComponents.id, id));
+  }
+
+  // Component usage tracking
+  async trackComponentUsage(usage: InsertComponentUsage): Promise<ComponentUsage> {
+    const [newUsage] = await db.insert(componentUsage).values(usage).returning();
+    
+    // Increment component usage count
+    if (usage.componentId) {
+      await this.incrementComponentUsage(usage.componentId);
+    }
+    
+    return newUsage;
+  }
+
+  async getComponentAnalytics(componentId: string): Promise<any> {
+    const usageStats = await db
+      .select({
+        totalUsage: sql<number>`count(*)`,
+        uniqueUsers: sql<number>`count(distinct ${componentUsage.userId})`,
+        avgPerformance: sql<number>`avg((${componentUsage.performanceMetrics}->>'loadTime')::float)`,
+        topPages: sql<string[]>`array_agg(distinct ${componentUsage.page})`,
+        recentUsage: sql<number>`count(*) filter (where ${componentUsage.createdAt} >= now() - interval '7 days')`,
+      })
+      .from(componentUsage)
+      .where(eq(componentUsage.componentId, componentId));
+
+    return usageStats[0] || {
+      totalUsage: 0,
+      uniqueUsers: 0,
+      avgPerformance: 0,
+      topPages: [],
+      recentUsage: 0,
+    };
   }
 }
 
