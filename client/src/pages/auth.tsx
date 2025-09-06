@@ -11,7 +11,7 @@ import { Loader2 } from "lucide-react";
 
 export default function AuthPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -90,6 +90,39 @@ export default function AuthPage() {
     }
   };
 
+  const handlePasswordReset = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+
+    try {
+      const { error } = await resetPassword(email);
+      
+      if (error) {
+        toast({
+          title: "Reset failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Reset email sent!",
+          description: "Check your email for instructions to reset your password.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Reset failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -103,9 +136,10 @@ export default function AuthPage() {
         </div>
         
         <Tabs defaultValue="signin" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="signin">Sign In</TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsTrigger value="reset">Reset</TabsTrigger>
           </TabsList>
           
           <TabsContent value="signin">
@@ -219,6 +253,41 @@ export default function AuthPage() {
                   >
                     {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Create Account
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="reset">
+            <Card>
+              <CardHeader>
+                <CardTitle>Reset Password</CardTitle>
+                <CardDescription>
+                  Enter your email address and we'll send you a link to reset your password
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handlePasswordReset} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-email">Email</Label>
+                    <Input
+                      id="reset-email"
+                      name="email"
+                      type="email"
+                      required
+                      data-testid="input-reset-email"
+                      placeholder="Enter your email address"
+                    />
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isLoading}
+                    data-testid="button-reset-password"
+                  >
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Send Reset Link
                   </Button>
                 </form>
               </CardContent>
