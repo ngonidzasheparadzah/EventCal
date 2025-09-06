@@ -6,6 +6,7 @@ import { ChevronLeft, Home, Building, Wrench } from 'lucide-react';
 export default function WebsiteType() {
   const [, setLocation] = useLocation();
   const [selectedType, setSelectedType] = useState<string>('');
+  const [isNavigating, setIsNavigating] = useState<boolean>(false);
   const tabsContainerRef = useRef<HTMLDivElement>(null);
   const continueButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -141,18 +142,25 @@ export default function WebsiteType() {
           {/* Continue Button */}
           <Button
             ref={continueButtonRef}
-            disabled={!selectedType}
+            disabled={isNavigating}
             className={`w-full h-14 text-lg font-semibold shadow-lg rounded-2xl border-0 ${
-              !selectedType ? 'opacity-50 cursor-not-allowed' : ''
+              isNavigating ? 'opacity-50 cursor-not-allowed' : ''
             }`}
             style={{ 
-              backgroundColor: selectedType ? '#1E5EFF' : '#9CA3AF',
+              backgroundColor: isNavigating ? '#9CA3AF' : '#1E5EFF',
               color: '#FFFFFF'
             }}
-            onMouseEnter={(e) => selectedType && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#174ACC')}
-            onMouseLeave={(e) => selectedType && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E5EFF')}
+            onMouseEnter={(e) => !isNavigating && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#174ACC')}
+            onMouseLeave={(e) => !isNavigating && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E5EFF')}
             onClick={(e) => {
               e.stopPropagation();
+              
+              if (!selectedType) {
+                // If no type selected, just return without doing anything
+                return;
+              }
+              
+              setIsNavigating(true);
               
               if (selectedType === 'Guest') {
                 window.location.href = '/guest-signup';
