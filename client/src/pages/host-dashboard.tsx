@@ -15,7 +15,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import MobileNav from "@/components/layout/mobile-nav";
-import { EmailVerificationBanner } from "@/components/email-verification-banner";
+import EmailVerificationBanner from "@/components/email-verification-banner";
 import { PhoneVerificationBanner } from "@/components/phone-verification-banner";
 import { Listing } from "@/types";
 import { 
