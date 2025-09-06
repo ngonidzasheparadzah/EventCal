@@ -15,6 +15,8 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import MobileNav from "@/components/layout/mobile-nav";
+import { EmailVerificationBanner } from "@/components/email-verification-banner";
+import { PhoneVerificationBanner } from "@/components/phone-verification-banner";
 import { Listing } from "@/types";
 import { 
   Plus, 
@@ -257,6 +259,8 @@ export default function HostDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      <EmailVerificationBanner />
+      <PhoneVerificationBanner />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
