@@ -113,7 +113,13 @@ export default function WebsiteType() {
                     {type.label}
                   </div>
                   <div className={`text-xs ${
-                    selectedType === type.id ? 'text-blue-500' : 'text-gray-500'
+                    selectedType === type.id 
+                      ? 'text-blue-500' 
+                      : type.id === 'Guest' 
+                        ? 'text-green-600'
+                        : type.id === 'Host'
+                        ? 'text-purple-600'
+                        : 'text-orange-600'
                   }`}>
                     {type.description}
                   </div>
