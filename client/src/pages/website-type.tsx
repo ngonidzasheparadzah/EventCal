@@ -5,7 +5,7 @@ import { ChevronLeft, Home, Building, Wrench } from 'lucide-react';
 
 export default function WebsiteType() {
   const [, setLocation] = useLocation();
-  const [selectedType, setSelectedType] = useState<string>('Guest');
+  const [selectedType, setSelectedType] = useState<string>('');
   const tabsContainerRef = useRef<HTMLDivElement>(null);
 
   // Handle click outside to unselect tabs
@@ -28,24 +28,21 @@ export default function WebsiteType() {
       label: "I'm looking for a Home",
       title: 'Guest',
       description: 'Find and book accommodation',
-      icon: Home,
-      isSelected: true
+      icon: Home
     },
     {
       id: 'Host', 
       label: "I'm looking for Tenants",
       title: 'Host',
       description: 'List your property for guests',
-      icon: Building,
-      isSelected: false
+      icon: Building
     },
     {
       id: 'Service Provider',
       label: "I'm looking for Clients",
       title: 'Service Provider',
       description: 'Offer services to hosts & guests',
-      icon: Wrench,
-      isSelected: false
+      icon: Wrench
     }
   ];
 
