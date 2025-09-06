@@ -15,7 +15,7 @@ export default function OnboardingDemo() {
           <img 
             src={logoUrl} 
             alt="RooMe Logo" 
-            className="w-32 h-32 mx-auto mb-4"
+            className="w-32 h-32 mx-auto mb-2"
           />
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
             Welcome to RooMe.
