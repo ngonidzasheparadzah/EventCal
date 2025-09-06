@@ -2,15 +2,21 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'wouter';
 import interiorImageUrl from '@assets/adc0bb02ab607b07cc71434fa22cb839_1757163627498.jpg';
+import logoUrl from '@assets/BackgroundEraser_20250906_144355719_1757164631834.png';
 
 export default function OnboardingDemo() {
   const [, setLocation] = useLocation();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-center px-4 py-8">
-      <div className="w-full max-w-sm mx-auto flex flex-col justify-center min-h-screen space-y-8">
-        {/* Main Title */}
+      <div className="w-full max-w-sm mx-auto flex flex-col justify-center min-h-screen space-y-6">
+        {/* Logo */}
         <div className="text-center pt-8">
+          <img 
+            src={logoUrl} 
+            alt="RooMe Logo" 
+            className="w-16 h-16 mx-auto mb-4"
+          />
           <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
             Welcome to RooMe.
           </h1>
