@@ -33,6 +33,8 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByAuthId(authId: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  updateUserVerificationStatus(authId: string, type: 'email' | 'phone', verified: boolean): Promise<User>;
+  updateUserSignInTime(authId: string): Promise<void>;
   
   // Listing operations
   getListings(filters?: any): Promise<Listing[]>;
@@ -97,7 +99,7 @@ export class DatabaseStorage implements IStorage {
       .insert(users)
       .values(userData)
       .onConflictDoUpdate({
-        target: users.id,
+        target: users.authId,
         set: {
           ...userData,
           updatedAt: new Date(),
@@ -105,6 +107,35 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return user;
+  }
+
+  async updateUserVerificationStatus(authId: string, type: 'email' | 'phone', verified: boolean): Promise<User> {
+    const updateData: any = { updatedAt: new Date() };
+    
+    if (type === 'email') {
+      updateData.emailVerified = verified;
+      updateData.emailVerifiedAt = verified ? new Date() : null;
+    } else if (type === 'phone') {
+      updateData.phoneVerified = verified;
+      updateData.phoneVerifiedAt = verified ? new Date() : null;
+    }
+
+    const [user] = await db
+      .update(users)
+      .set(updateData)
+      .where(eq(users.authId, authId))
+      .returning();
+    return user;
+  }
+
+  async updateUserSignInTime(authId: string): Promise<void> {
+    await db
+      .update(users)
+      .set({ 
+        lastSignInAt: new Date(),
+        updatedAt: new Date() 
+      })
+      .where(eq(users.authId, authId));
   }
 
   // Listing operations

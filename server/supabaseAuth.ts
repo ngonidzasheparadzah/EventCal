@@ -25,7 +25,33 @@ export async function setupAuth(app: Express) {
               firstName: user.user_metadata?.first_name || null,
               lastName: user.user_metadata?.last_name || null,
               profileImageUrl: user.user_metadata?.avatar_url || null,
+              phoneNumber: user.phone || null,
+              emailVerified: user.email_confirmed_at != null,
+              phoneVerified: user.phone_confirmed_at != null,
+              emailVerifiedAt: user.email_confirmed_at ? new Date(user.email_confirmed_at) : null,
+              phoneVerifiedAt: user.phone_confirmed_at ? new Date(user.phone_confirmed_at) : null,
+              lastSignInAt: new Date(),
+              rawUserMetaData: user.user_metadata || {},
+              rawAppMetaData: user.app_metadata || {},
             });
+          } else {
+            // Update existing user verification status and sign-in time
+            await storage.updateUserSignInTime(user.id);
+            
+            // Sync verification status if changed
+            const emailVerified = user.email_confirmed_at != null;
+            const phoneVerified = user.phone_confirmed_at != null;
+            
+            if (dbUser.emailVerified !== emailVerified) {
+              await storage.updateUserVerificationStatus(user.id, 'email', emailVerified);
+            }
+            
+            if (dbUser.phoneVerified !== phoneVerified) {
+              await storage.updateUserVerificationStatus(user.id, 'phone', phoneVerified);
+            }
+            
+            // Refresh user data after potential updates
+            dbUser = await storage.getUserByAuthId(user.id) || dbUser;
           }
           
           req.user = {
