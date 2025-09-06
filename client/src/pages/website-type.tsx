@@ -49,7 +49,7 @@ export default function WebsiteType() {
       </div>
 
       {/* Character and Question */}
-      <div className="flex-1 px-4 py-8">
+      <div className="flex-1 px-4 py-2">
         <div className="max-w-sm mx-auto">
           {/* Character */}
           <div className="flex items-start mb-6">
