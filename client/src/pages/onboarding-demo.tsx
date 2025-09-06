@@ -28,11 +28,19 @@ export default function OnboardingDemo() {
   // Auto-scroll every 4 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
+      setCurrentSlide((prevSlide) => {
+        const nextSlide = (prevSlide + 1) % slides.length;
+        return nextSlide;
+      });
     }, 4000);
 
     return () => clearInterval(interval);
   }, [slides.length]);
+
+  // Reset to first slide on mount to ensure consistent state
+  useEffect(() => {
+    setCurrentSlide(0);
+  }, []);
 
   return (
     <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-between px-4 py-4">
@@ -56,6 +64,7 @@ export default function OnboardingDemo() {
             onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
           >
             <img 
+              key={currentSlide}
               src={slides[currentSlide].image} 
               alt="Property showcase" 
               className="w-full h-56 object-cover transition-all duration-500"
