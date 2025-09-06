@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'wouter';
 import interiorImageUrl from '@assets/adc0bb02ab607b07cc71434fa22cb839_1757163627498.jpg';
-import propertyImageUrl from '@assets/416d8c541ef4002021dfddb267ee8f31_1757166031967.jpg';
+import propertyImageUrl from '@assets/4d8f2d40ea93693d1b35f72e0700f452_1757166284914.jpg';
 import logoUrl from '@assets/BackgroundEraser_20250906_144355719_1757164631834.png';
 
 export default function OnboardingDemo() {
