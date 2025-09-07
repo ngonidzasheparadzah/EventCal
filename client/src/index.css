@@ -123,3 +123,185 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* RooMe App Responsive Dimensions */
+
+/* Main Container Utilities */
+.app-container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 16px; /* Mobile default */
+}
+
+/* Mobile: 360-375px viewport */
+@media (max-width: 767px) {
+  .app-container {
+    width: 95%;
+    padding: 0 16px;
+  }
+  
+  .app-nav {
+    height: 50px;
+  }
+  
+  .app-content {
+    padding: 16px;
+  }
+  
+  .property-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+/* Tablet: 768-1024px viewport */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .app-container {
+    width: 90%;
+    padding: 0 20px;
+  }
+  
+  .app-nav {
+    height: 60px;
+  }
+  
+  .app-content {
+    padding: 20px;
+  }
+  
+  .property-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  .property-card {
+    width: 100%;
+  }
+}
+
+/* Desktop: 1440px+ viewport */
+@media (min-width: 1025px) {
+  .app-container {
+    max-width: 1200px;
+    width: 100%;
+    padding: 0 24px;
+  }
+  
+  .app-nav {
+    height: 80px;
+  }
+  
+  .app-footer {
+    height: 100px;
+  }
+  
+  .app-content {
+    padding: 24px;
+  }
+  
+  .property-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 1152px; /* 3 × 360px + 2 × 24px gap */
+    margin: 0 auto;
+  }
+  
+  .property-card {
+    width: 100%;
+    max-width: 360px;
+  }
+  
+  .hero-section {
+    min-height: 800px;
+  }
+}
+
+/* Layout Utilities */
+.nav-height-mobile {
+  height: 50px;
+}
+
+.nav-height-tablet {
+  height: 60px;
+}
+
+.nav-height-desktop {
+  height: 80px;
+}
+
+.footer-height-desktop {
+  height: 100px;
+}
+
+/* Responsive Grid System */
+.responsive-grid {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .responsive-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .responsive-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+}
+
+/* Content Width Utilities */
+.content-mobile {
+  width: 95%;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.content-tablet {
+  width: 90%;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.content-desktop {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* Responsive Content Container */
+.responsive-container {
+  width: 95%;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+@media (min-width: 768px) {
+  .responsive-container {
+    width: 90%;
+    padding: 0 20px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .responsive-container {
+    max-width: 1200px;
+    width: 100%;
+    padding: 0 24px;
+  }
+}

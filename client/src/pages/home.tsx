@@ -67,8 +67,8 @@ export default function Home() {
       <PhoneVerificationBanner />
       
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-b from-primary/5 to-background py-12 md:py-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="relative bg-gradient-to-b from-primary/5 to-background py-12 md:py-20 hero-section">
+        <div className="responsive-container text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
             Welcome back! Find your next stay in <span className="text-primary">Zimbabwe</span>
           </h1>
@@ -143,7 +143,7 @@ export default function Home() {
 
       {/* Property Types */}
       <section className="py-12 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="responsive-container">
           <h2 className="text-2xl font-bold text-foreground mb-8 text-center">Browse by property type</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {propertyTypeStats.map((type) => (
@@ -168,7 +168,7 @@ export default function Home() {
 
       {/* Featured Listings */}
       <section className="py-12 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="responsive-container">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold text-foreground">Featured stays</h2>
             <Button 
@@ -182,9 +182,9 @@ export default function Home() {
           </div>
           
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="responsive-grid">
               {[...Array(8)].map((_, i) => (
-                <Card key={i} className="animate-pulse">
+                <Card key={i} className="animate-pulse property-card">
                   <div className="h-48 bg-muted rounded-t-lg"></div>
                   <CardContent className="p-4">
                     <div className="h-4 bg-muted rounded mb-2"></div>
@@ -195,7 +195,7 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="responsive-grid">
               {featuredListings.map((listing: Listing) => (
                 <PropertyCard 
                   key={listing.id} 
@@ -210,7 +210,7 @@ export default function Home() {
 
       {/* Services Section */}
       <section className="py-12 bg-secondary">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="responsive-container">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-foreground mb-4">Discover local services</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">From cleaning services to guided tours, find trusted local providers for all your needs.</p>

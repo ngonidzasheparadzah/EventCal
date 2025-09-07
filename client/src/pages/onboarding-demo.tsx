@@ -43,8 +43,8 @@ export default function OnboardingDemo() {
   }, []);
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-between px-4 py-4">
-      <div className="w-full max-w-sm mx-auto flex flex-col justify-between h-full">
+    <div className="h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex flex-col items-center justify-between">
+      <div className="responsive-container max-w-sm flex flex-col justify-between h-full">
         {/* Logo and Title */}
         <div className="text-center pt-2">
           <img 

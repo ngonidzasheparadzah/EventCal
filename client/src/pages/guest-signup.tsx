@@ -144,7 +144,7 @@ export default function GuestSignup() {
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <div className="flex items-center p-4">
+      <div className="flex items-center app-content">
         <button 
           onClick={() => setLocation('/website-type')}
           className="px-4 py-2 rounded-full text-white text-sm font-medium hover:opacity-90 transition-opacity"
@@ -157,15 +157,15 @@ export default function GuestSignup() {
       </div>
 
       {/* Page Title */}
-      <div className="px-4 pb-2">
-        <div className="max-w-sm mx-auto">
+      <div className="pb-2">
+        <div className="responsive-container max-w-sm">
           <h1 className="text-lg font-semibold text-gray-900 text-center mb-3">Basic Info</h1>
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="px-4 pb-4">
-        <div className="max-w-sm mx-auto">
+      <div className="pb-4">
+        <div className="responsive-container max-w-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold" style={{ backgroundColor: '#0390D7', color: 'white' }}>1</div>
@@ -181,8 +181,8 @@ export default function GuestSignup() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-4 py-4 flex flex-col justify-center">
-        <div className="max-w-sm mx-auto w-full">
+      <div className="flex-1 flex flex-col justify-center">
+        <div className="responsive-container max-w-sm w-full">
 
           {/* Sign Up Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
