@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { useLocation } from 'wouter';
-import { ChevronLeft, User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 
 export default function GuestSignup() {
   const [, setLocation] = useLocation();
@@ -36,8 +34,7 @@ export default function GuestSignup() {
           style={{ backgroundColor: '#0390D7' }}
           data-testid="button-back"
         >
-          <ChevronLeft className="w-4 h-4 inline mr-1" />
-          Back
+          ← Back
         </button>
       </div>
 
@@ -46,8 +43,8 @@ export default function GuestSignup() {
         <div className="max-w-sm mx-auto w-full">
           {/* Welcome Message */}
           <div className="text-center mb-8">
-            <div className="mb-4 p-4 rounded-full bg-green-100 w-16 h-16 mx-auto flex items-center justify-center">
-              <User className="w-8 h-8 text-green-600" />
+            <div className="mb-4 p-4 rounded-full bg-green-100 w-16 h-16 mx-auto flex items-center justify-center text-green-600 text-2xl">
+              👤
             </div>
             <h1 className="text-xl font-bold text-gray-900 mb-2">
               Welcome, Guest!
@@ -61,8 +58,8 @@ export default function GuestSignup() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Full Name */}
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="h-5 w-5 text-gray-400" />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 text-lg">
+                👤
               </div>
               <input
                 type="text"
@@ -78,8 +75,8 @@ export default function GuestSignup() {
 
             {/* Email */}
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400" />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 text-lg">
+                ✉️
               </div>
               <input
                 type="email"
@@ -95,8 +92,8 @@ export default function GuestSignup() {
 
             {/* Password */}
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 text-lg">
+                🔒
               </div>
               <input
                 type={showPassword ? "text" : "password"}
@@ -111,21 +108,17 @@ export default function GuestSignup() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 text-lg"
                 data-testid="button-toggle-password"
               >
-                {showPassword ? (
-                  <EyeOff className="h-5 w-5 text-gray-400" />
-                ) : (
-                  <Eye className="h-5 w-5 text-gray-400" />
-                )}
+                {showPassword ? '🙈' : '👁️'}
               </button>
             </div>
 
             {/* Confirm Password */}
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400" />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 text-lg">
+                🔒
               </div>
               <input
                 type={showPassword ? "text" : "password"}
@@ -140,19 +133,19 @@ export default function GuestSignup() {
             </div>
 
             {/* Sign Up Button */}
-            <Button
+            <button
               type="submit"
               className="w-full h-14 text-lg font-semibold shadow-lg rounded-2xl border-0 mt-6"
               style={{ 
                 backgroundColor: '#0390D7',
                 color: '#FFFFFF'
               }}
-              onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#027BB8'}
-              onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#0390D7'}
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.backgroundColor = '#027BB8')}
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.backgroundColor = '#0390D7')}
               data-testid="button-sign-up"
             >
               Create Account
-            </Button>
+            </button>
           </form>
 
           {/* Login Link */}
