@@ -33,7 +33,7 @@ export default function GuestSignup() {
         <button 
           onClick={() => setLocation('/website-type')}
           className="px-4 py-2 rounded-full text-white text-sm font-medium hover:opacity-90 transition-opacity"
-          style={{ backgroundColor: '#1a6bce' }}
+          style={{ backgroundColor: '#0390D7' }}
           data-testid="button-back"
         >
           <ChevronLeft className="w-4 h-4 inline mr-1" />
@@ -144,11 +144,11 @@ export default function GuestSignup() {
               type="submit"
               className="w-full h-14 text-lg font-semibold shadow-lg rounded-2xl border-0 mt-6"
               style={{ 
-                backgroundColor: '#1a6bce',
+                backgroundColor: '#0390D7',
                 color: '#FFFFFF'
               }}
-              onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#165bb8'}
-              onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1a6bce'}
+              onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#027BB8'}
+              onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#0390D7'}
               data-testid="button-sign-up"
             >
               Create Account
