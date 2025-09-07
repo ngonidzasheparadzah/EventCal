@@ -147,11 +147,11 @@ export default function WebsiteType() {
               isNavigating ? 'opacity-50 cursor-not-allowed' : ''
             }`}
             style={{ 
-              backgroundColor: isNavigating ? '#9CA3AF' : '#1E5EFF',
+              backgroundColor: isNavigating ? '#9CA3AF' : '#1a6bce',
               color: '#FFFFFF'
             }}
-            onMouseEnter={(e) => !isNavigating && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#174ACC')}
-            onMouseLeave={(e) => !isNavigating && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E5EFF')}
+            onMouseEnter={(e) => !isNavigating && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#165bb8')}
+            onMouseLeave={(e) => !isNavigating && ((e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1a6bce')}
             onClick={(e) => {
               e.stopPropagation();
               

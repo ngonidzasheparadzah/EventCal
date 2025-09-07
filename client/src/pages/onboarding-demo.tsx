@@ -53,7 +53,7 @@ export default function OnboardingDemo() {
             className="w-32 h-32 mx-auto"
           />
           <h1 className="text-2xl font-semibold" style={{ color: '#2C2C2C' }}>
-            Welcome to <span style={{ color: '#1E5EFF' }}>RooMe</span>.
+            Welcome to <span style={{ color: '#1a6bce' }}>RooMe</span>.
           </h1>
         </div>
         
@@ -88,7 +88,7 @@ export default function OnboardingDemo() {
                 key={index}
                 className="w-2 h-2 rounded-full cursor-pointer transition-colors duration-300"
                 style={{
-                  backgroundColor: currentSlide === index ? '#1E5EFF' : '#d1d5db'
+                  backgroundColor: currentSlide === index ? '#1a6bce' : '#d1d5db'
                 }}
                 onClick={() => setCurrentSlide(index)}
               />
@@ -99,11 +99,11 @@ export default function OnboardingDemo() {
           <Button
             className="w-full h-12 text-lg font-semibold shadow-lg rounded-2xl border-0 transition-colors duration-200"
             style={{ 
-              backgroundColor: '#1E5EFF',
+              backgroundColor: '#1a6bce',
               color: '#FFFFFF'
             }}
-            onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#174ACC'}
-            onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1E5EFF'}
+            onMouseEnter={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#165bb8'}
+            onMouseLeave={(e) => (e.currentTarget as HTMLButtonElement).style.backgroundColor = '#1a6bce'}
             onClick={() => setLocation('/website-type')}
           >
             Continue

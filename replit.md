@@ -52,13 +52,13 @@ transition-all duration-200 hover:scale-105 active:scale-95
 **Styling Patterns**:
 - Clean, minimal design without mascots or unnecessary elements
 - Compact tabs with `p-3 rounded-lg` 
-- RooMe blue selection state (#1E5EFF)
+- RooMe blue selection state (#1a6bce)
 - Bold titles with `text-lg font-bold`
 
 #### 3. Visual Design System
 **Primary Brand Colors**:
-- RooMe Blue: `#1E5EFF` - Primary brand color, buttons, selection states
-- Hover Blue: `#174ACC` - Button hover states, active interactions
+- RooMe Blue: `#1a6bce` - Primary brand color, CTA buttons, RooMe text, selection states
+- Hover Blue: `#165bb8` - Button hover states, active interactions
 - Text Charcoal: `#2C2C2C` - Primary text color, headlines
 - White: `#FFFFFF` - Button text, card backgrounds
 
