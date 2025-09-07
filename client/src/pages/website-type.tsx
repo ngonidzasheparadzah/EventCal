@@ -163,11 +163,11 @@ export default function WebsiteType() {
               setIsNavigating(true);
               
               if (selectedType === 'Guest') {
-                window.location.href = '/guest-signup';
+                setLocation('/guest-signup');
               } else if (selectedType === 'Host') {
-                window.location.href = '/host-signup';
+                setLocation('/host-signup');
               } else if (selectedType === 'Service Provider') {
-                window.location.href = '/service-provider-signup';
+                setLocation('/service-provider-signup');
               }
             }}
             data-testid="button-continue"

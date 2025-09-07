@@ -45,7 +45,7 @@ export default function GuestSignup() {
       <div className="flex-1 px-4 py-4 flex flex-col justify-center">
         <div className="max-w-sm mx-auto w-full">
           {/* Welcome Message */}
-          <div className="text-center mb-8 animate-fade-in">
+          <div className="text-center mb-8">
             <div className="mb-4 p-4 rounded-full bg-green-100 w-16 h-16 mx-auto flex items-center justify-center">
               <User className="w-8 h-8 text-green-600" />
             </div>
@@ -58,7 +58,7 @@ export default function GuestSignup() {
           </div>
 
           {/* Sign Up Form */}
-          <form onSubmit={handleSubmit} className="space-y-4 animate-fade-in-delayed">
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Full Name */}
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
