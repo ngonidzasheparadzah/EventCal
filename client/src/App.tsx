@@ -31,7 +31,7 @@ function Router() {
           <Route path="/" component={OnboardingDemo} />
           <Route path="/website-type" component={WebsiteType} />
           <Route path="/guest-signup" component={GuestSignup} />
-        <Route path="/login" component={Login} />
+          <Route path="/login" component={Login} />
           <Route path="/guest-contact-verification" component={GuestContactVerification} />
           <Route path="/landing" component={Landing} />
           <Route path="/auth" component={AuthPage} />
