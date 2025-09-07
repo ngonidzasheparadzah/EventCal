@@ -59,7 +59,7 @@ export default function WebsiteType() {
         <button 
           onClick={() => setLocation('/')}
           className="px-4 py-2 rounded-full text-white text-sm font-medium hover:opacity-90 transition-opacity"
-          style={{ backgroundColor: '#1E5EFF' }}
+          style={{ backgroundColor: '#0390D7' }}
           data-testid="button-back"
         >
           <ChevronLeft className="w-4 h-4 inline mr-1" />
