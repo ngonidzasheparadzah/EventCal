@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
+import { ChevronLeft } from 'lucide-react';
 
 export default function GuestSignup() {
   const [, setLocation] = useLocation();
@@ -34,25 +35,32 @@ export default function GuestSignup() {
           style={{ backgroundColor: '#0390D7' }}
           data-testid="button-back"
         >
-          ← Back
+          <ChevronLeft className="w-4 h-4 inline mr-1" />
+          Back
         </button>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="px-4 pb-4">
+        <div className="max-w-sm mx-auto">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold" style={{ backgroundColor: '#0390D7', color: 'white' }}>1</div>
+              <div className="w-12 h-1 bg-gray-200"></div>
+              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-400">2</div>
+              <div className="w-12 h-1 bg-gray-200"></div>
+              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-400">3</div>
+              <div className="w-12 h-1 bg-gray-200"></div>
+              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-400">4</div>
+            </div>
+          </div>
+          <p className="text-xs text-gray-500 text-center">Step 1 of 4</p>
+        </div>
       </div>
 
       {/* Content */}
       <div className="flex-1 px-4 py-4 flex flex-col justify-center">
         <div className="max-w-sm mx-auto w-full">
-          {/* Welcome Message */}
-          <div className="text-center mb-8">
-            <div className="mb-4 p-4 rounded-full bg-green-100 w-16 h-16 mx-auto flex items-center justify-center text-green-600 text-2xl">
-              👤
-            </div>
-            <h1 className="text-xl font-bold text-gray-900 mb-2">
-              Welcome, Guest!
-            </h1>
-            <p className="text-sm text-gray-600">
-              Create your account to start finding amazing accommodations
-            </p>
-          </div>
 
           {/* Sign Up Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -144,7 +152,7 @@ export default function GuestSignup() {
               onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.backgroundColor = '#0390D7')}
               data-testid="button-sign-up"
             >
-              Create Account
+              Continue
             </button>
           </form>
 
