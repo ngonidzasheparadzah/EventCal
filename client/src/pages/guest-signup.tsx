@@ -5,6 +5,7 @@ import { ChevronLeft } from 'lucide-react';
 export default function GuestSignup() {
   const [, setLocation] = useLocation();
   const [showPassword, setShowPassword] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
