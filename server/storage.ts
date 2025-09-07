@@ -12,6 +12,8 @@ import {
   uiComponents,
   componentUsage,
   type User,
+  type InsertUser,
+  type CreateGuestUser,
   type UpsertUser,
   type Listing,
   type InsertListing,
@@ -35,9 +37,12 @@ import { eq, and, desc, asc, sql, ilike, gte, lte, inArray } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
-  // User operations (compatible with Supabase Auth)
+  // User operations (supports both local signup and Supabase Auth)
   getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   getUserByAuthId(authId: string): Promise<User | undefined>;
+  createGuestUser(userData: CreateGuestUser, passwordHash: string): Promise<User>;
+  updateUserOnboardingStep(userId: string, step: number): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserVerificationStatus(authId: string, type: 'email' | 'phone', verified: boolean): Promise<User>;
   updateUserSignInTime(authId: string): Promise<void>;
@@ -102,14 +107,45 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // User operations (compatible with Supabase Auth)
+  // User operations (supports both local signup and Supabase Auth)
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
   async getUserByAuthId(authId: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.authId, authId));
+    return user;
+  }
+
+  async createGuestUser(userData: CreateGuestUser, passwordHash: string): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values({
+        ...userData,
+        passwordHash,
+        signupMethod: 'local',
+        onboardingStep: 1,
+        role: 'guest',
+      })
+      .returning();
+    return user;
+  }
+
+  async updateUserOnboardingStep(userId: string, step: number): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ 
+        onboardingStep: step,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
     return user;
   }
 

@@ -14,27 +14,33 @@ import {
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 
-// User storage table (compatible with Supabase Auth)
+// User storage table (supports both local signup and Supabase Auth)
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: varchar("email").unique(),
+  email: varchar("email").unique().notNull(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   phoneNumber: varchar("phone_number"),
+  // Local authentication fields
+  passwordHash: varchar("password_hash"), // For local signup
+  // User role and verification
   role: varchar("role").notNull().default("guest"), // guest, host, admin
   isVerified: boolean("is_verified").notNull().default(false),
   verificationStatus: varchar("verification_status").default("pending"), // pending, verified, rejected
-  // Supabase Auth fields
-  authId: varchar("auth_id").unique().notNull(), // maps to Supabase auth.users.id
+  // Supabase Auth fields (optional for local signup)
+  authId: varchar("auth_id").unique(), // maps to Supabase auth.users.id (optional)
   emailVerified: boolean("email_verified").notNull().default(false),
   phoneVerified: boolean("phone_verified").notNull().default(false),
   emailVerifiedAt: timestamp("email_verified_at"),
   phoneVerifiedAt: timestamp("phone_verified_at"),
   lastSignInAt: timestamp("last_sign_in_at"),
-  // Additional Supabase metadata
+  // Additional metadata
   rawUserMetaData: jsonb("raw_user_meta_data").default({}),
   rawAppMetaData: jsonb("raw_app_meta_data").default({}),
+  // Signup source tracking
+  signupMethod: varchar("signup_method").notNull().default("local"), // local, supabase, google, etc.
+  onboardingStep: integer("onboarding_step").notNull().default(1), // Track signup progress
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -339,6 +345,22 @@ export const componentUsageRelations = relations(componentUsage, ({ one }) => ({
 }));
 
 // Zod schemas
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  passwordHash: true, // Don't expose password hash in API
+});
+
+export const createGuestUserSchema = createInsertSchema(users).pick({
+  email: true,
+  firstName: true,
+  lastName: true,
+  role: true,
+  signupMethod: true,
+  onboardingStep: true,
+});
+
 export const upsertUserSchema = createInsertSchema(users).pick({
   id: true,
   email: true,
@@ -403,6 +425,8 @@ export const insertComponentUsageSchema = createInsertSchema(componentUsage).omi
 
 // Types
 export type User = typeof users.$inferSelect;
+export type InsertUser = typeof insertUserSchema._type;
+export type CreateGuestUser = typeof createGuestUserSchema._type;
 export type UpsertUser = typeof upsertUserSchema._type;
 export type Listing = typeof listings.$inferSelect;
 export type InsertListing = typeof insertListingSchema._type;

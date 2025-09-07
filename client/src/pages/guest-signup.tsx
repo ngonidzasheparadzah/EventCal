@@ -100,13 +100,43 @@ export default function GuestSignup() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (validateForm()) {
-      // Proceed to step 2: Contact and verification
-      console.log('Step 1 completed:', formData);
-      setLocation('/guest-contact-verification');
+      try {
+        setIsNavigating(true);
+        
+        const response = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+          // Store user ID for future use
+          localStorage.setItem('userId', data.user.id);
+          console.log('Account created successfully:', data.user);
+          
+          // Proceed to step 2: Contact and verification
+          setLocation('/guest-contact-verification');
+        } else {
+          // Handle error
+          const errorMessage = data.message || 'Failed to create account';
+          setErrors({ general: errorMessage });
+          console.error('Signup failed:', data);
+        }
+        
+      } catch (error) {
+        console.error('Network error:', error);
+        setErrors({ general: 'Network error. Please try again.' });
+      } finally {
+        setIsNavigating(false);
+      }
     }
   };
 
@@ -250,19 +280,27 @@ export default function GuestSignup() {
               {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
             </div>
 
+            {/* General Error */}
+            {errors.general && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl">
+                <p className="text-red-600 text-sm">{errors.general}</p>
+              </div>
+            )}
+
             {/* Continue Button */}
             <button
               type="submit"
               className="w-full h-14 text-lg font-semibold shadow-lg rounded-2xl border-0 mt-6"
               style={{ 
-                backgroundColor: '#0390D7',
+                backgroundColor: isNavigating ? '#9CA3AF' : '#0390D7',
                 color: '#FFFFFF'
               }}
-              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.backgroundColor = '#027BB8')}
-              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => (e.currentTarget.style.backgroundColor = '#0390D7')}
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => !isNavigating && (e.currentTarget.style.backgroundColor = '#027BB8')}
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => !isNavigating && (e.currentTarget.style.backgroundColor = '#0390D7')}
               data-testid="button-continue"
+              disabled={isNavigating}
             >
-              Continue
+              {isNavigating ? 'Creating Account...' : 'Continue'}
             </button>
           </form>
 

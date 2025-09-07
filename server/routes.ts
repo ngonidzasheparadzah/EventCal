@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, setupAuthRoutes, isAuthenticated } from "./supabaseAuth";
+import bcrypt from 'bcryptjs';
 import { 
   insertListingSchema, 
   insertBookingSchema, 
@@ -10,13 +11,147 @@ import {
   insertServiceSchema,
   insertUiComponentSchema,
   insertComponentUsageSchema,
+  createGuestUserSchema,
+  type CreateGuestUser,
 } from "@shared/schema";
 import { z } from "zod";
+
+// Guest signup schema with validation
+const guestSignupSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
   setupAuthRoutes(app);
+
+  // Guest signup endpoint (local authentication)
+  app.post('/api/auth/signup', async (req, res) => {
+    try {
+      const validatedData = guestSignupSchema.parse(req.body);
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(validatedData.email);
+      if (existingUser) {
+        return res.status(400).json({ 
+          error: "User already exists", 
+          message: "An account with this email already exists" 
+        });
+      }
+      
+      // Hash password
+      const saltRounds = 12;
+      const passwordHash = await bcrypt.hash(validatedData.password, saltRounds);
+      
+      // Create user data
+      const [firstName, ...lastNameParts] = validatedData.fullName.trim().split(' ');
+      const lastName = lastNameParts.join(' ') || '';
+      
+      const userData: CreateGuestUser = {
+        email: validatedData.email,
+        firstName,
+        lastName,
+        role: 'guest',
+        signupMethod: 'local',
+        onboardingStep: 1,
+      };
+      
+      // Create user in database
+      const newUser = await storage.createGuestUser(userData, passwordHash);
+      
+      // Return user without sensitive data
+      const { passwordHash: _, ...userResponse } = newUser;
+      
+      res.status(201).json({
+        success: true,
+        message: "Account created successfully",
+        user: userResponse
+      });
+      
+    } catch (error) {
+      console.error("Signup error:", error);
+      
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({
+          error: "Validation failed",
+          details: error.errors
+        });
+      }
+      
+      res.status(500).json({
+        error: "Internal server error",
+        message: "Failed to create account"
+      });
+    }
+  });
+  
+  // Update onboarding step endpoint
+  app.patch('/api/user/:userId/onboarding', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { step } = req.body;
+      
+      if (!step || typeof step !== 'number') {
+        return res.status(400).json({
+          error: "Invalid step",
+          message: "Step must be a number"
+        });
+      }
+      
+      const updatedUser = await storage.updateUserOnboardingStep(userId, step);
+      
+      // Return user without sensitive data
+      const { passwordHash: _, ...userResponse } = updatedUser;
+      
+      res.json({
+        success: true,
+        user: userResponse
+      });
+      
+    } catch (error) {
+      console.error("Update onboarding step error:", error);
+      res.status(500).json({
+        error: "Internal server error",
+        message: "Failed to update onboarding step"
+      });
+    }
+  });
+  
+  // Get user endpoint
+  app.get('/api/user/:userId', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({
+          error: "User not found"
+        });
+      }
+      
+      // Return user without sensitive data
+      const { passwordHash: _, ...userResponse } = user;
+      
+      res.json({
+        success: true,
+        user: userResponse
+      });
+      
+    } catch (error) {
+      console.error("Get user error:", error);
+      res.status(500).json({
+        error: "Internal server error",
+        message: "Failed to fetch user"
+      });
+    }
+  });
 
   // Listing routes
   app.get('/api/listings', async (req, res) => {
