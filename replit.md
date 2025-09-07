@@ -115,6 +115,37 @@ transition-all duration-200 hover:scale-105 active:scale-95
 
 Preferred communication style: Simple, everyday language.
 
+## Responsive Design Specifications
+
+### Desktop (1440px width)
+- **Viewport**: 1440px width
+- **Main content container**: max-width 1200px, centered
+- **Accommodation cards**: 3-column grid, each card width ~360px, gap 24px between cards
+- **Top navigation bar height**: 80px
+- **Footer height**: 100px
+- **Above-the-fold content height**: ~800px
+
+### Tablet (768–1024px)
+- **Viewport**: 768–1024px
+- **Content container**: 90% of viewport width, centered
+- **Accommodation cards**: 2-column grid, gap 16–24px
+- **Top navigation**: 60px height
+- **Card width**: Adjusts to fit grid
+
+### Mobile (360–375px)
+- **Viewport**: 360–375px
+- **Content container**: 95% of viewport width
+- **Accommodation layout**: Single-column layout for cards
+- **Top navigation**: 50px height
+- **Content padding**: 16px around content
+
+### General Rules
+- All widths, heights, and spacing scale naturally with screen size
+- Grid maintains consistent gutter and alignment across breakpoints
+- Responsive containers use `.responsive-container` class
+- Property grids use `.responsive-grid` class
+- Navigation heights use `.app-nav` class
+
 # System Architecture
 
 ## Frontend Architecture
