@@ -243,6 +243,115 @@ export const componentUsage = pgTable("component_usage", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Payments table for booking transactions
+export const payments = pgTable("payments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  bookingId: varchar("booking_id").notNull().references(() => bookings.id),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  paymentIntentId: varchar("payment_intent_id").notNull(), // Stripe Payment Intent ID
+  status: varchar("status").notNull(), // succeeded, pending, failed
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  currency: varchar("currency").notNull().default("USD"),
+  paymentMethod: varchar("payment_method"), // e.g., 'card', 'paypal'
+  transactionDate: timestamp("transaction_date").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Availability table for listing bookings
+export const availability = pgTable("availability", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").notNull().references(() => listings.id),
+  date: timestamp("date").notNull(), // The specific date
+  isAvailable: boolean("is_available").notNull().default(true),
+  bookedByUserId: varchar("booked_by_user_id").references(() => users.id), // If booked, which user
+  bookingId: varchar("booking_id").references(() => bookings.id), // Link to the booking
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Verification documents for user or listing verification
+export const verificationDocuments = pgTable("verification_documents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id), // Link to user if user verification
+  listingId: varchar("listing_id").references(() => listings.id), // Link to listing if listing verification
+  documentType: varchar("document_type").notNull(), // e.g., 'id_card', 'passport', 'utility_bill'
+  documentUrl: varchar("document_url").notNull(), // URL to the stored document
+  status: varchar("status").notNull().default("pending"), // pending, approved, rejected
+  rejectionReason: text("rejection_reason"),
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+  verifiedAt: timestamp("verified_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Notifications table for user alerts
+export const notifications = pgTable("notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  type: varchar("type").notNull(), // e.g., 'new_message', 'booking_request', 'review_received'
+  content: text("content").notNull(),
+  isRead: boolean("is_read").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Support tickets for customer service
+export const supportTickets = pgTable("support_tickets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  subject: varchar("subject").notNull(),
+  description: text("description").notNull(),
+  status: varchar("status").notNull().default("open"), // open, in_progress, resolved, closed
+  priority: varchar("priority").notNull().default("medium"), // low, medium, high
+  assignedToUserId: varchar("assigned_to_user_id").references(() => users.id), // Optional: if assigned to an agent
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Promotions and discounts table
+export const promotions = pgTable("promotions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  code: varchar("code").notNull().unique(),
+  description: text("description"),
+  discountType: varchar("discount_type").notNull(), // percentage, fixed_amount
+  discountValue: decimal("discount_value", { precision: 10, scale: 2 }).notNull(),
+  startDate: timestamp("start_date").notNull(),
+  endDate: timestamp("end_date").notNull(),
+  usageLimit: integer("usage_limit"), // Total number of times the promo can be used
+  usedCount: integer("used_count").notNull().default(0), // Number of times used
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Amenities table to list available amenities for listings
+export const amenities = pgTable("amenities", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull().unique(), // e.g., Wifi, Parking, Pool
+  description: text("description"),
+  icon: varchar("icon"), // Optional: icon name or URL
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Property images table to store multiple images per listing
+export const propertyImages = pgTable("property_images", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  listingId: varchar("listing_id").notNull().references(() => listings.id),
+  imageUrl: varchar("image_url").notNull(), // URL to the image
+  altText: varchar("alt_text"), // Accessibility text
+  isPrimary: boolean("is_primary").notNull().default(false), // If this is the main image
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Saved searches table for users
+export const savedSearches = pgTable("saved_searches", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id),
+  searchQuery: jsonb("search_query").notNull(), // Store search parameters as JSON
+  name: varchar("name"), // Optional: user-given name for the search
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ many }) => ({
   listings: many(listings),
@@ -257,6 +366,12 @@ export const usersRelations = relations(users, ({ many }) => ({
   createdComponents: many(uiComponents, { relationName: "creator" }),
   updatedComponents: many(uiComponents, { relationName: "updater" }),
   componentUsage: many(componentUsage),
+  payments: many(payments),
+  availability: many(availability),
+  verificationDocuments: many(verificationDocuments),
+  notifications: many(notifications),
+  supportTickets: many(supportTickets),
+  savedSearches: many(savedSearches),
 }));
 
 export const listingsRelations = relations(listings, ({ one, many }) => ({
@@ -268,6 +383,8 @@ export const listingsRelations = relations(listings, ({ one, many }) => ({
   reviews: many(reviews),
   wishlist: many(wishlist),
   messages: many(messages),
+  propertyImages: many(propertyImages),
+  availability: many(availability),
 }));
 
 export const bookingsRelations = relations(bookings, ({ one }) => ({
@@ -285,6 +402,8 @@ export const bookingsRelations = relations(bookings, ({ one }) => ({
     references: [users.id],
     relationName: "host",
   }),
+  payments: many(payments),
+  availability: many(availability),
 }));
 
 export const messagesRelations = relations(messages, ({ one }) => ({
@@ -340,6 +459,83 @@ export const componentUsageRelations = relations(componentUsage, ({ one }) => ({
   }),
   user: one(users, {
     fields: [componentUsage.userId],
+    references: [users.id],
+  }),
+}));
+
+export const paymentsRelations = relations(payments, ({ one }) => ({
+  booking: one(bookings, {
+    fields: [payments.bookingId],
+    references: [bookings.id],
+  }),
+  user: one(users, {
+    fields: [payments.userId],
+    references: [users.id],
+  }),
+}));
+
+export const availabilityRelations = relations(availability, ({ one }) => ({
+  listing: one(listings, {
+    fields: [availability.listingId],
+    references: [listings.id],
+  }),
+  bookedByUser: one(users, {
+    fields: [availability.bookedByUserId],
+    references: [users.id],
+  }),
+  booking: one(bookings, {
+    fields: [availability.bookingId],
+    references: [bookings.id],
+  }),
+}));
+
+export const verificationDocumentsRelations = relations(verificationDocuments, ({ one }) => ({
+  user: one(users, {
+    fields: [verificationDocuments.userId],
+    references: [users.id],
+  }),
+  listing: one(listings, {
+    fields: [verificationDocuments.listingId],
+    references: [listings.id],
+  }),
+}));
+
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  user: one(users, {
+    fields: [notifications.userId],
+    references: [users.id],
+  }),
+}));
+
+export const supportTicketsRelations = relations(supportTickets, ({ one }) => ({
+  user: one(users, {
+    fields: [supportTickets.userId],
+    references: [users.id],
+  }),
+  assignedToUser: one(users, {
+    fields: [supportTickets.assignedToUserId],
+    references: [users.id],
+  }),
+}));
+
+export const promotionsRelations = relations(promotions, ({ /* many */ }) => ({
+  // No direct relations defined here, but could be linked to bookings or orders
+}));
+
+export const amenitiesRelations = relations(amenities, ({ /* many */ }) => ({
+  // Many-to-many relationship with listings would typically be handled by a join table
+}));
+
+export const propertyImagesRelations = relations(propertyImages, ({ one }) => ({
+  listing: one(listings, {
+    fields: [propertyImages.listingId],
+    references: [listings.id],
+  }),
+}));
+
+export const savedSearchesRelations = relations(savedSearches, ({ one }) => ({
+  user: one(users, {
+    fields: [savedSearches.userId],
     references: [users.id],
   }),
 }));
@@ -423,6 +619,57 @@ export const insertComponentUsageSchema = createInsertSchema(componentUsage).omi
   createdAt: true,
 });
 
+export const insertPaymentSchema = createInsertSchema(payments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAvailabilitySchema = createInsertSchema(availability).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertVerificationDocumentSchema = createInsertSchema(verificationDocuments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSupportTicketSchema = createInsertSchema(supportTickets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertPromotionSchema = createInsertSchema(promotions).omit({
+  id: true,
+  createdAt: true,
+  usedCount: true,
+});
+
+export const insertAmenitySchema = createInsertSchema(amenities).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertPropertyImageSchema = createInsertSchema(propertyImages).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSavedSearchSchema = createInsertSchema(savedSearches).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof insertUserSchema._type;
@@ -444,3 +691,21 @@ export type UiComponent = typeof uiComponents.$inferSelect;
 export type InsertUiComponent = typeof insertUiComponentSchema._type;
 export type ComponentUsage = typeof componentUsage.$inferSelect;
 export type InsertComponentUsage = typeof insertComponentUsageSchema._type;
+export type Payment = typeof payments.$inferSelect;
+export type InsertPayment = typeof insertPaymentSchema._type;
+export type Availability = typeof availability.$inferSelect;
+export type InsertAvailability = typeof insertAvailabilitySchema._type;
+export type VerificationDocument = typeof verificationDocuments.$inferSelect;
+export type InsertVerificationDocument = typeof insertVerificationDocumentSchema._type;
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof insertNotificationSchema._type;
+export type SupportTicket = typeof supportTickets.$inferSelect;
+export type InsertSupportTicket = typeof insertSupportTicketSchema._type;
+export type Promotion = typeof promotions.$inferSelect;
+export type InsertPromotion = typeof insertPromotionSchema._type;
+export type Amenity = typeof amenities.$inferSelect;
+export type InsertAmenity = typeof insertAmenitySchema._type;
+export type PropertyImage = typeof propertyImages.$inferSelect;
+export type InsertPropertyImage = typeof insertPropertyImageSchema._type;
+export type SavedSearch = typeof savedSearches.$inferSelect;
+export type InsertSavedSearch = typeof insertSavedSearchSchema._type;
