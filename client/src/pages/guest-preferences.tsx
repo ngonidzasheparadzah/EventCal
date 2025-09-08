@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
-import { ChevronLeft, X } from 'lucide-react';
+import { ChevronLeft, X, Plus } from 'lucide-react';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 
 export default function GuestPreferences() {
   const [, setLocation] = useLocation();
   const { state, dispatch, validateStep } = useOnboarding();
   const [isNavigating, setIsNavigating] = useState(false);
+  const [newHobby, setNewHobby] = useState('');
 
   // Amenity options
   const amenityOptions = [
@@ -45,6 +46,39 @@ export default function GuestPreferences() {
       type: 'UPDATE_STEP3', 
       payload: { accommodationLookingFor: value } 
     });
+  };
+
+  const handleOccupationChange = (value: string) => {
+    dispatch({ 
+      type: 'UPDATE_STEP3', 
+      payload: { occupation: value } 
+    });
+  };
+
+  const handleAddHobby = () => {
+    if (newHobby.trim() && !(state.step3.hobbies || []).includes(newHobby.trim())) {
+      const updatedHobbies = [...(state.step3.hobbies || []), newHobby.trim()];
+      dispatch({ 
+        type: 'UPDATE_STEP3', 
+        payload: { hobbies: updatedHobbies } 
+      });
+      setNewHobby('');
+    }
+  };
+
+  const handleRemoveHobby = (hobbyToRemove: string) => {
+    const updatedHobbies = (state.step3.hobbies || []).filter(hobby => hobby !== hobbyToRemove);
+    dispatch({ 
+      type: 'UPDATE_STEP3', 
+      payload: { hobbies: updatedHobbies } 
+    });
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddHobby();
+    }
   };
 
   const handleAmenityToggle = (amenityId: string) => {
@@ -86,9 +120,6 @@ export default function GuestPreferences() {
     }
   };
 
-  const handleSkip = () => {
-    setLocation('/dashboard');
-  };
 
   const handleBack = () => {
     setLocation('/guest-contact-verification');
@@ -203,34 +234,89 @@ export default function GuestPreferences() {
               <p className="text-xs text-gray-500 mt-2">Tell us about your ideal living environment</p>
             </div>
 
+            {/* Occupation */}
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3">Occupation</h3>
+              <input
+                type="text"
+                placeholder="Student, Software Engineer, Doctor, Entrepreneur..."
+                value={state.step3.occupation || ''}
+                onChange={(e) => handleOccupationChange(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                data-testid="input-occupation"
+              />
+              <p className="text-xs text-gray-500 mt-1">Your profession or current occupation</p>
+            </div>
+
+            {/* Hobbies */}
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3">Hobbies & Interests</h3>
+              
+              {/* Add new hobby input */}
+              <div className="flex gap-2 mb-3">
+                <input
+                  type="text"
+                  placeholder="Add a hobby or interest..."
+                  value={newHobby}
+                  onChange={(e) => setNewHobby(e.target.value)}
+                  onKeyPress={handleKeyPress}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  data-testid="input-new-hobby"
+                />
+                <button
+                  onClick={handleAddHobby}
+                  disabled={!newHobby.trim()}
+                  className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  data-testid="button-add-hobby"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Display current hobbies */}
+              {(state.step3.hobbies || []).length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {(state.step3.hobbies || []).map((hobby, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+                      data-testid={`chip-hobby-${index}`}
+                    >
+                      <span>{hobby}</span>
+                      <button
+                        onClick={() => handleRemoveHobby(hobby)}
+                        className="ml-2 text-blue-600 hover:text-blue-800"
+                        data-testid={`button-remove-hobby-${index}`}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <p className="text-xs text-gray-500">Share your hobbies, interests, or activities you enjoy</p>
+            </div>
+
           </div>
         </div>
       </div>
 
-      {/* Action Buttons */}
+      {/* Action Button */}
       <div className="p-4">
         <div className="responsive-container max-w-sm">
-          <div className="flex gap-3">
-            <button 
-              onClick={handleSkip}
-              className="flex-1 py-3 rounded-full border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-all duration-200"
-              data-testid="button-skip"
-            >
-              Skip
-            </button>
-            <button 
-              onClick={handleNext}
-              disabled={isNavigating}
-              className={`flex-1 py-3 rounded-full text-white font-medium transition-all duration-200 ${
-                !isNavigating
-                  ? 'bg-blue-500 hover:bg-blue-600 active:scale-95' 
-                  : 'bg-gray-300 cursor-not-allowed'
-              }`}
-              data-testid="button-complete-signup"
-            >
-              {isNavigating ? 'Completing...' : 'Complete Sign Up'}
-            </button>
-          </div>
+          <button 
+            onClick={handleNext}
+            disabled={isNavigating}
+            className={`w-full py-3 rounded-full text-white font-medium transition-all duration-200 ${
+              !isNavigating
+                ? 'bg-blue-500 hover:bg-blue-600 active:scale-95' 
+                : 'bg-gray-300 cursor-not-allowed'
+            }`}
+            data-testid="button-complete-signup"
+          >
+            {isNavigating ? 'Completing...' : 'Complete Sign Up'}
+          </button>
           <p className="text-xs text-gray-500 text-center mt-2">
             All preferences are optional and can be updated later
           </p>

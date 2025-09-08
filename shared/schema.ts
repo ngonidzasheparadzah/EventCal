@@ -184,10 +184,11 @@ export const userPreferences = pgTable("user_preferences", {
   preferredAmenities: jsonb("preferred_amenities").default([]), // Array of preferred amenities
   accommodationLookingFor: text("accommodation_looking_for"), // What they look for in accommodation
   roommatePreferences: jsonb("roommate_preferences").default([]), // Array of roommate preferences
+  hobbies: jsonb("hobbies").default([]), // Array of hobbies/interests
+  occupation: varchar("occupation"), // User's occupation
   // Existing fields for roommate matching (future feature)
   age: integer("age"),
   gender: varchar("gender"),
-  occupation: varchar("occupation"),
   lifestyle: jsonb("lifestyle").default({}), // smoking, pets, etc.
   budgetMin: decimal("budget_min", { precision: 10, scale: 2 }),
   budgetMax: decimal("budget_max", { precision: 10, scale: 2 }),

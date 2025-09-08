@@ -20,6 +20,8 @@ export interface OnboardingStep3Data {
   preferredAmenities: string[];
   accommodationLookingFor: string;
   roommatePreferences: string[];
+  hobbies: string[];
+  occupation: string;
 }
 
 export interface OnboardingState {
@@ -66,7 +68,9 @@ const initialState: OnboardingState = {
   step3: {
     preferredAmenities: [],
     accommodationLookingFor: '',
-    roommatePreferences: []
+    roommatePreferences: [],
+    hobbies: [],
+    occupation: ''
   }
 };
 
