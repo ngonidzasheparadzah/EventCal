@@ -37,13 +37,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = guestSignupSchema.parse(req.body);
       
-      // Check if user already exists
+      // Check if a completed user already exists with this email
       const existingUser = await storage.getUserByEmail(validatedData.email);
-      if (existingUser) {
+      if (existingUser && existingUser.onboardingStep >= 4) {
         return res.status(400).json({ 
           error: "User already exists", 
           message: "An account with this email already exists" 
         });
+      }
+      
+      // If user exists but hasn't completed onboarding, delete the incomplete record
+      if (existingUser && existingUser.onboardingStep < 4) {
+        await storage.deleteUser(existingUser.id);
       }
       
       // Hash password
