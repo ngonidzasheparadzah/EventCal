@@ -87,48 +87,16 @@ export default function GuestContactVerification() {
       try {
         setIsNavigating(true);
         
-        if (state.userId) {
-          // Save contact information
-          const contactResponse = await fetch(`/api/user/${state.userId}/contact`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              phoneNumber: state.step2.phoneNumber,
-              city: state.step2.city,
-              address: state.step2.address
-            }),
-          });
-          
-          if (!contactResponse.ok) {
-            setErrors({ general: 'Failed to save contact information. Please try again.' });
-            return;
-          }
-          
-          // Update onboarding step
-          const onboardingResponse = await fetch(`/api/user/${state.userId}/onboarding`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ step: 3 }),
-          });
-          
-          if (onboardingResponse.ok) {
-            // Update context step
-            dispatch({ type: 'SET_CURRENT_STEP', payload: 3 });
-            
-            // Proceed to step 3: Preferences
-            setLocation('/guest-preferences');
-          } else {
-            setErrors({ general: 'Failed to update profile. Please try again.' });
-          }
-        }
+        // Just proceed to next step - data is already stored in context
+        dispatch({ type: 'SET_CURRENT_STEP', payload: 3 });
+        console.log('Contact info collected, proceeding to preferences');
+        
+        // Proceed to step 3: Preferences
+        setLocation('/guest-preferences');
         
       } catch (error) {
-        console.error('Update error:', error);
-        setErrors({ general: 'Network error. Please try again.' });
+        console.error('Navigation error:', error);
+        setErrors({ general: 'Navigation error. Please try again.' });
       } finally {
         setIsNavigating(false);
       }

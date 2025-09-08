@@ -114,29 +114,31 @@ export default function GuestSignup() {
       try {
         setIsNavigating(true);
         
-        const response = await fetch('/api/auth/signup', {
+        // Check if email already exists (without creating account)
+        const response = await fetch('/api/auth/check-email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(state.step1),
+          body: JSON.stringify({ email: state.step1.email }),
         });
         
         const data = await response.json();
         
-        if (response.ok && data.success) {
-          // Store user ID in context
-          dispatch({ type: 'SET_USER_ID', payload: data.user.id });
+        if (response.ok && !data.exists) {
+          // Email is available, proceed to next step
           dispatch({ type: 'SET_CURRENT_STEP', payload: 2 });
-          console.log('Account created successfully:', data.user);
+          console.log('Basic info collected, proceeding to contact verification');
           
           // Proceed to step 2: Contact and verification
           setLocation('/guest-contact-verification');
+        } else if (data.exists) {
+          // Email already exists
+          setErrors({ email: 'An account with this email already exists' });
         } else {
-          // Handle error
-          const errorMessage = data.message || 'Failed to create account';
+          // Other error
+          const errorMessage = data.message || 'Failed to validate email';
           setErrors({ general: errorMessage });
-          console.error('Signup failed:', data);
         }
         
       } catch (error) {

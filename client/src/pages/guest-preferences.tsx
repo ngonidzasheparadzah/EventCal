@@ -184,27 +184,53 @@ export default function GuestPreferences() {
     setIsNavigating(true);
     
     try {
-      if (!state.userId) {
-        console.error('No user ID available');
-        return;
-      }
+      // Create complete account with all collected data
+      const completeAccountData = {
+        // Stage 1 data
+        fullName: state.step1.fullName,
+        email: state.step1.email,
+        password: state.step1.password,
+        // Stage 2 data
+        phoneNumber: state.step2.phoneNumber,
+        city: state.step2.city,
+        address: state.step2.address,
+        // Stage 3 data
+        preferences: {
+          preferredAmenities: state.step3.preferredAmenities || [],
+          accommodationLookingFor: state.step3.accommodationLookingFor || '',
+          roommatePreferences: state.step3.roommatePreferences || [],
+          hobbies: state.step3.hobbies || [],
+          occupation: state.step3.occupation || '',
+        }
+      };
 
-      // Save user preferences
-      await savePreferencesMutation.mutateAsync({
-        preferredAmenities: state.step3.preferredAmenities || [],
-        accommodationLookingFor: state.step3.accommodationLookingFor || '',
-        roommatePreferences: state.step3.roommatePreferences || [],
-        hobbies: state.step3.hobbies || [],
-        occupation: state.step3.occupation || '',
+      // Create complete account
+      const response = await fetch('/api/auth/complete-signup', {
+        method: 'POST',
+        body: JSON.stringify(completeAccountData),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
-
-      // Update onboarding step to indicate completion
-      await updateOnboardingStepMutation.mutateAsync(4);
-
-      // Navigate to dashboard
-      setLocation('/dashboard');
+      
+      if (!response.ok) {
+        throw new Error('Failed to create account');
+      }
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        console.log('Complete account created successfully:', data.user);
+        
+        // Navigate to dashboard
+        setLocation('/dashboard');
+      } else {
+        throw new Error(data.message || 'Failed to create account');
+      }
+      
     } catch (error) {
-      console.error('Error completing onboarding:', error);
+      console.error('Error completing signup:', error);
+      // Could add error state here to show user the error
     } finally {
       setIsNavigating(false);
     }

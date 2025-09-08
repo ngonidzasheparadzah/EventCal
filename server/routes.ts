@@ -32,6 +32,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
   setupAuthRoutes(app);
 
+  // Email availability check (without creating account)
+  app.post('/api/auth/check-email', async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({
+          error: "Email is required"
+        });
+      }
+      
+      // Check if user exists with this email
+      const existingUser = await storage.getUserByEmail(email);
+      
+      res.json({
+        success: true,
+        exists: !!existingUser
+      });
+      
+    } catch (error) {
+      console.error("Check email error:", error);
+      res.status(500).json({
+        error: "Internal server error",
+        message: "Failed to check email availability"
+      });
+    }
+  });
+
   // Guest signup endpoint (local authentication)
   app.post('/api/auth/signup', async (req, res) => {
     try {
