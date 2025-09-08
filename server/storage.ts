@@ -93,6 +93,16 @@ export interface IStorage {
   // Search operations
   searchListings(query: string, filters?: any): Promise<Listing[]>;
   
+  // User Preferences operations
+  createUserPreferences(userId: string, preferences: {
+    preferredAmenities?: string[];
+    accommodationLookingFor?: string;
+    roommatePreferences?: string[];
+    hobbies?: string[];
+    occupation?: string;
+  }): Promise<UserPreferences>;
+  getUserPreferences(userId: string): Promise<UserPreferences | undefined>;
+  
   // UI Components operations
   getUIComponents(filters?: { category?: string; isActive?: boolean; isPublic?: boolean }): Promise<UiComponent[]>;
   getUIComponent(id: string): Promise<UiComponent | undefined>;
@@ -196,6 +206,46 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date() 
       })
       .where(eq(users.authId, authId));
+  }
+
+  // User Preferences operations
+  async createUserPreferences(userId: string, preferences: {
+    preferredAmenities?: string[];
+    accommodationLookingFor?: string;
+    roommatePreferences?: string[];
+    hobbies?: string[];
+    occupation?: string;
+  }): Promise<UserPreferences> {
+    const [userPrefs] = await db
+      .insert(userPreferences)
+      .values({
+        userId,
+        preferredAmenities: preferences.preferredAmenities || [],
+        accommodationLookingFor: preferences.accommodationLookingFor,
+        roommatePreferences: preferences.roommatePreferences || [],
+        hobbies: preferences.hobbies || [],
+        occupation: preferences.occupation,
+      })
+      .onConflictDoUpdate({
+        target: userPreferences.userId,
+        set: {
+          preferredAmenities: preferences.preferredAmenities || [],
+          accommodationLookingFor: preferences.accommodationLookingFor,
+          roommatePreferences: preferences.roommatePreferences || [],
+          hobbies: preferences.hobbies || [],
+          occupation: preferences.occupation,
+        }
+      })
+      .returning();
+    return userPrefs;
+  }
+
+  async getUserPreferences(userId: string): Promise<UserPreferences | undefined> {
+    const [userPrefs] = await db
+      .select()
+      .from(userPreferences)
+      .where(eq(userPreferences.userId, userId));
+    return userPrefs;
   }
 
   // Listing operations

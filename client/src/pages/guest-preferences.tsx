@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import { ChevronLeft, X, Plus } from 'lucide-react';
 import { useOnboarding } from '@/contexts/OnboardingContext';
+import { useMutation } from '@tanstack/react-query';
+import { apiRequest } from '@/lib/queryClient';
 
 export default function GuestPreferences() {
   const [, setLocation] = useLocation();
@@ -134,13 +136,60 @@ export default function GuestPreferences() {
     });
   };
 
+  // API mutation to save user preferences
+  const savePreferencesMutation = useMutation({
+    mutationFn: async (preferences: {
+      preferredAmenities: string[];
+      accommodationLookingFor: string;
+      roommatePreferences: string[];
+      hobbies: string[];
+      occupation: string;
+    }) => {
+      return await apiRequest(`/api/user/${state.userId}/preferences`, {
+        method: 'POST',
+        body: JSON.stringify(preferences),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    },
+  });
+
+  // API mutation to update onboarding step
+  const updateOnboardingStepMutation = useMutation({
+    mutationFn: async (step: number) => {
+      return await apiRequest(`/api/user/${state.userId}/onboarding`, {
+        method: 'PATCH',
+        body: JSON.stringify({ step }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    },
+  });
+
   const handleNext = async () => {
     setIsNavigating(true);
     
     try {
-      // Navigate to completion or next appropriate screen
-      // Since this is now the final step, we could navigate to a completion screen
-      // For now, we'll navigate to the main app or dashboard
+      if (!state.userId) {
+        console.error('No user ID available');
+        return;
+      }
+
+      // Save user preferences
+      await savePreferencesMutation.mutateAsync({
+        preferredAmenities: state.step3.preferredAmenities || [],
+        accommodationLookingFor: state.step3.accommodationLookingFor || '',
+        roommatePreferences: state.step3.roommatePreferences || [],
+        hobbies: state.step3.hobbies || [],
+        occupation: state.step3.occupation || '',
+      });
+
+      // Update onboarding step to indicate completion
+      await updateOnboardingStepMutation.mutateAsync(4);
+
+      // Navigate to dashboard
       setLocation('/dashboard');
     } catch (error) {
       console.error('Error completing onboarding:', error);

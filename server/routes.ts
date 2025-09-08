@@ -158,6 +158,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User preferences routes
+  app.post('/api/user/:userId/preferences', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const preferences = req.body;
+      
+      const userPrefs = await storage.createUserPreferences(userId, preferences);
+      
+      res.json({
+        success: true,
+        preferences: userPrefs
+      });
+      
+    } catch (error) {
+      console.error("Save user preferences error:", error);
+      res.status(500).json({
+        error: "Internal server error",
+        message: "Failed to save user preferences"
+      });
+    }
+  });
+
+  app.get('/api/user/:userId/preferences', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      
+      const preferences = await storage.getUserPreferences(userId);
+      
+      res.json({
+        success: true,
+        preferences: preferences || null
+      });
+      
+    } catch (error) {
+      console.error("Get user preferences error:", error);
+      res.status(500).json({
+        error: "Internal server error",
+        message: "Failed to get user preferences"
+      });
+    }
+  });
+
   // Listing routes
   app.get('/api/listings', async (req, res) => {
     try {
