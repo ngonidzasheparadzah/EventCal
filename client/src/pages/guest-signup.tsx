@@ -1,25 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { ChevronLeft } from 'lucide-react';
+import { useOnboarding } from '@/contexts/OnboardingContext';
 
 export default function GuestSignup() {
   const [, setLocation] = useLocation();
+  const { state, dispatch, validateStep, canAdvanceToStep } = useOnboarding();
   const [showPassword, setShowPassword] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [passwordStrength, setPasswordStrength] = useState(0);
 
+  // Initialize form data from context
+  useEffect(() => {
+    if (state.step1.password) {
+      setPasswordStrength(calculatePasswordStrength(state.step1.password));
+    }
+  }, [state.step1.password]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
+    
+    // Update onboarding context
+    dispatch({
+      type: 'UPDATE_STEP1',
+      payload: { [name]: value }
     });
     
     // Clear errors when user starts typing
@@ -69,31 +74,32 @@ export default function GuestSignup() {
   
   const validateForm = (): boolean => {
     const newErrors: {[key: string]: string} = {};
+    const { fullName, email, password, confirmPassword } = state.step1;
     
     // Name validation
-    if (!formData.fullName.trim()) {
+    if (!fullName.trim()) {
       newErrors.fullName = 'Full name is required';
     }
     
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email) {
+    if (!email.trim()) {
       newErrors.email = 'Email is required';
-    } else if (!emailRegex.test(formData.email)) {
+    } else if (!emailRegex.test(email)) {
       newErrors.email = 'Please enter a valid email address';
     }
     
     // Password validation
-    if (!formData.password) {
+    if (!password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
+    } else if (password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters long';
     } else if (passwordStrength < 3) {
       newErrors.password = 'Password is too weak. Include uppercase, lowercase, numbers, and symbols';
     }
     
     // Confirm password validation
-    if (formData.password !== formData.confirmPassword) {
+    if (password !== confirmPassword) {
       newErrors.confirmPassword = 'Passwords do not match';
     }
     
@@ -113,14 +119,15 @@ export default function GuestSignup() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(state.step1),
         });
         
         const data = await response.json();
         
         if (response.ok && data.success) {
-          // Store user ID for future use
-          localStorage.setItem('userId', data.user.id);
+          // Store user ID in context
+          dispatch({ type: 'SET_USER_ID', payload: data.user.id });
+          dispatch({ type: 'SET_CURRENT_STEP', payload: 2 });
           console.log('Account created successfully:', data.user);
           
           // Proceed to step 2: Contact and verification
@@ -195,7 +202,7 @@ export default function GuestSignup() {
                 type="text"
                 name="fullName"
                 placeholder="Full Name"
-                value={formData.fullName}
+                value={state.step1.fullName}
                 onChange={handleInputChange}
                 className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150 ${errors.fullName ? 'border-red-500' : 'border-gray-300'}`}
                 data-testid="input-full-name"
@@ -212,7 +219,7 @@ export default function GuestSignup() {
                 type="email"
                 name="email"
                 placeholder="Email Address"
-                value={formData.email}
+                value={state.step1.email}
                 onChange={handleInputChange}
                 className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
                 data-testid="input-email"
@@ -229,7 +236,7 @@ export default function GuestSignup() {
                 type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Password"
-                value={formData.password}
+                value={state.step1.password}
                 onChange={handleInputChange}
                 className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150 ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
                 data-testid="input-password"
@@ -244,7 +251,7 @@ export default function GuestSignup() {
               </button>
             </div>
             {/* Password Strength Indicator */}
-            {formData.password && (
+            {state.step1.password && (
               <div className="mt-2">
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-gray-600">Password strength:</span>
@@ -273,7 +280,7 @@ export default function GuestSignup() {
                 type={showPassword ? "text" : "password"}
                 name="confirmPassword"
                 placeholder="Confirm Password"
-                value={formData.confirmPassword}
+                value={state.step1.confirmPassword}
                 onChange={handleInputChange}
                 className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150 ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'}`}
                 data-testid="input-confirm-password"
