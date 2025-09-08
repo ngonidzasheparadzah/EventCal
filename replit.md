@@ -39,23 +39,30 @@ RooMe Zimbabwe is a full-stack accommodation booking platform built specifically
 - **Animation**: Smooth transitions and hover effects maintained
 
 #### ✅ **3-Step Onboarding Process Redesign** (September 2025)
-**Change**: Streamlined guest onboarding from 4 steps to 3 steps, replacing accommodation preferences with personal information
+**Change**: Streamlined guest onboarding from 4 steps to 3 steps, focusing on accommodation preferences in the final step
 
 **New Onboarding Flow**:
 1. **Step 1 - Basic Info**: Full name, email, password (guest-signup.tsx)
 2. **Step 2 - Contact & Verification**: Phone number, address, city, email verification (guest-contact-verification.tsx)  
-3. **Step 3 - About You**: Personal description, hobbies, profession (guest-preferences.tsx)
+3. **Step 3 - About You**: Accommodation preferences, preferred amenities, roommate preferences (guest-preferences.tsx)
 
 **Database Schema Updates**:
-- **Enhanced user_preferences table**: Added `description` (text), `hobbies` (jsonb array), `profession` (varchar)
-- **Removed Fields**: accommodationType, stayType, priceRange, priceSensitivity, roommatePreferences, lifestylePreferences, amenities, location
-- **Data Storage**: Personal information stored only after complete signup process
+- **Enhanced user_preferences table**: Added `preferredAmenities` (jsonb array), `accommodationLookingFor` (text), `roommatePreferences` (jsonb array)
+- **Accommodation Focus**: Changed from personal information to accommodation matching fields
+- **Data Storage**: Accommodation preferences stored only after complete signup process
+- **Schema Sync**: Successfully synchronized with Supabase database
 
 **UI/UX Improvements**:
-- **"About You" Section**: User-friendly personal information collection with optional fields
-- **Interactive Hobbies**: Add/remove hobby chips with real-time validation
+- **"About You" Section**: Accommodation-focused preference collection with completely optional fields
+- **Interactive Selection**: Add/remove amenity and roommate preference chips with visual feedback
+- **Skip Option**: Page can be completely skipped - final step is fully optional
 - **Progress Bar**: Updated to 3-step visual indicator across all onboarding pages
-- **Validation**: Flexible validation requiring at least one personal field to be filled
+- **Validation**: No validation required - step can be skipped entirely
+
+**Accommodation Fields**:
+- **What do you look for in accommodation?**: Text area for describing preferences
+- **Preferred Amenities**: 12 selectable options (Wi-Fi, Kitchen, Parking, etc.)
+- **Roommate Preferences**: 12 selectable options (Quiet, Social, Professional, etc.)
 
 ### Onboarding Experience Components
 

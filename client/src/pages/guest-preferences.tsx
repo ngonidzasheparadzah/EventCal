@@ -48,7 +48,7 @@ export default function GuestPreferences() {
   };
 
   const handleAmenityToggle = (amenityId: string) => {
-    const currentAmenities = state.step3.preferredAmenities;
+    const currentAmenities = state.step3.preferredAmenities || [];
     const updatedAmenities = currentAmenities.includes(amenityId)
       ? currentAmenities.filter(id => id !== amenityId)
       : [...currentAmenities, amenityId];
@@ -60,7 +60,7 @@ export default function GuestPreferences() {
   };
 
   const handleRoommatePreferenceToggle = (prefId: string) => {
-    const currentPrefs = state.step3.roommatePreferences;
+    const currentPrefs = state.step3.roommatePreferences || [];
     const updatedPrefs = currentPrefs.includes(prefId)
       ? currentPrefs.filter(id => id !== prefId)
       : [...currentPrefs, prefId];
@@ -161,7 +161,7 @@ export default function GuestPreferences() {
                     type="button"
                     onClick={() => handleAmenityToggle(amenity.id)}
                     className={`p-2 rounded-lg border text-left transition-all duration-200 ${
-                      state.step3.preferredAmenities.includes(amenity.id)
+                      (state.step3.preferredAmenities || []).includes(amenity.id)
                         ? 'border-blue-500 bg-blue-50'
                         : 'border-gray-200 bg-white hover:border-gray-300'
                     }`}
@@ -187,7 +187,7 @@ export default function GuestPreferences() {
                     type="button"
                     onClick={() => handleRoommatePreferenceToggle(option.id)}
                     className={`p-2 rounded-lg border text-left transition-all duration-200 ${
-                      state.step3.roommatePreferences.includes(option.id)
+                      (state.step3.roommatePreferences || []).includes(option.id)
                         ? 'border-blue-500 bg-blue-50'
                         : 'border-gray-200 bg-white hover:border-gray-300'
                     }`}
