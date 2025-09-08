@@ -180,10 +180,10 @@ export const analytics = pgTable("analytics", {
 export const userPreferences = pgTable("user_preferences", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull().references(() => users.id),
-  // Personal information fields (from onboarding)
-  description: text("description"), // About yourself description
-  hobbies: jsonb("hobbies").default([]), // Array of hobbies/interests
-  profession: varchar("profession"), // Professional title/job
+  // Accommodation preference fields (from onboarding)
+  preferredAmenities: jsonb("preferred_amenities").default([]), // Array of preferred amenities
+  accommodationLookingFor: text("accommodation_looking_for"), // What they look for in accommodation
+  roommatePreferences: jsonb("roommate_preferences").default([]), // Array of roommate preferences
   // Existing fields for roommate matching (future feature)
   age: integer("age"),
   gender: varchar("gender"),

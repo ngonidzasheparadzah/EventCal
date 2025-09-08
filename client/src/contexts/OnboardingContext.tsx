@@ -17,9 +17,9 @@ export interface OnboardingStep2Data {
 }
 
 export interface OnboardingStep3Data {
-  description: string;
-  hobbies: string[];
-  profession: string;
+  preferredAmenities: string[];
+  accommodationLookingFor: string;
+  roommatePreferences: string[];
 }
 
 export interface OnboardingState {
@@ -64,9 +64,9 @@ const initialState: OnboardingState = {
     emailVerified: false
   },
   step3: {
-    description: '',
-    hobbies: [],
-    profession: ''
+    preferredAmenities: [],
+    accommodationLookingFor: '',
+    roommatePreferences: []
   }
 };
 
@@ -217,12 +217,8 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   };
 
   const validateStep3 = (): boolean => {
-    const { description, profession, hobbies } = state.step3;
-    
-    // All fields are optional, but at least one should be filled
-    return (description && description.trim() !== '') || 
-           (profession && profession.trim() !== '') || 
-           (hobbies && hobbies.length > 0);
+    // Step 3 is completely optional/skippable
+    return true;
   };
 
   const canAdvanceToStep = (targetStep: number): boolean => {
