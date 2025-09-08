@@ -124,6 +124,83 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+
+  // Complete signup endpoint (creates account with all data from all stages)
+  app.post('/api/auth/complete-signup', async (req, res) => {
+    try {
+      const { fullName, email, password, phoneNumber, city, address, preferences } = req.body;
+      
+      // Validate required fields
+      if (!fullName || !email || !password) {
+        return res.status(400).json({
+          error: "Missing required fields",
+          message: "Full name, email, and password are required"
+        });
+      }
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({
+          error: "User already exists",
+          message: "An account with this email already exists"
+        });
+      }
+      
+      // Hash password
+      const saltRounds = 12;
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      
+      // Split full name into first and last name
+      const [firstName, ...lastNameParts] = fullName.trim().split(' ');
+      const lastName = lastNameParts.join(' ') || '';
+      
+      // Create user data
+      const userData: CreateGuestUser = {
+        email,
+        firstName,
+        lastName,
+        role: 'guest',
+        signupMethod: 'local',
+        onboardingStep: 4, // Completed
+        phoneNumber: phoneNumber || null,
+        city: city || null,
+        address: address || null,
+      };
+      
+      // Create user in database
+      const newUser = await storage.createGuestUser(userData, hashedPassword);
+      
+      // Create user preferences if provided
+      if (preferences && Object.keys(preferences).length > 0) {
+        await storage.createUserPreferences(newUser.id, {
+          preferredAmenities: preferences.preferredAmenities || [],
+          accommodationLookingFor: preferences.accommodationLookingFor || null,
+          roommatePreferences: preferences.roommatePreferences || [],
+          hobbies: preferences.hobbies || [],
+          occupation: preferences.occupation || null,
+        });
+      }
+      
+      console.log('Complete account created:', newUser.id);
+      
+      // Return user without sensitive data
+      const { passwordHash: _, ...userResponse } = newUser;
+      
+      res.json({
+        success: true,
+        user: userResponse,
+        message: "Account created successfully"
+      });
+      
+    } catch (error) {
+      console.error("Complete signup error:", error);
+      res.status(500).json({
+        error: "Internal server error",
+        message: "Failed to create account"
+      });
+    }
+  });
   
   // Update onboarding step endpoint
   app.patch('/api/user/:userId/onboarding', async (req, res) => {
