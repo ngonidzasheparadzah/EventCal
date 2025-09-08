@@ -1,6 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.SUPABASE_URL!
+// Extract Supabase URL from database connection string
+const databaseUrl = process.env.SUPABASE_DATABASE_URL!
+// Extract project reference from: postgresql://postgres.pgbqbhqfsrzvjmanytcv:...@aws-1-ap-southeast-1.pooler.supabase.com:6543/postgres
+const projectRef = databaseUrl.match(/postgres\.([^:]+):/)?.[1] || ''
+const supabaseUrl = projectRef ? `https://${projectRef}.supabase.co` : process.env.SUPABASE_URL!
+
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
