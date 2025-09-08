@@ -17,14 +17,9 @@ export interface OnboardingStep2Data {
 }
 
 export interface OnboardingStep3Data {
-  accommodationType: string[];
-  stayType: string;
-  priceRange: [number, number];
-  priceSensitivity: string;
-  roommatePreferences: string[];
-  lifestylePreferences: string[];
-  amenities: string[];
-  location: string;
+  description: string;
+  hobbies: string[];
+  profession: string;
 }
 
 export interface OnboardingState {
@@ -69,14 +64,9 @@ const initialState: OnboardingState = {
     emailVerified: false
   },
   step3: {
-    accommodationType: [],
-    stayType: '',
-    priceRange: [0, 1000],
-    priceSensitivity: '',
-    roommatePreferences: [],
-    lifestylePreferences: [],
-    amenities: [],
-    location: ''
+    description: '',
+    hobbies: [],
+    profession: ''
   }
 };
 
@@ -227,9 +217,10 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   };
 
   const validateStep3 = (): boolean => {
-    // Step 3 is optional, so always return true
-    // Users can skip this step entirely
-    return true;
+    const { description, profession } = state.step3;
+    
+    // All fields are optional, but at least one should be filled
+    return description.trim() !== '' || profession.trim() !== '' || state.step3.hobbies.length > 0;
   };
 
   const canAdvanceToStep = (targetStep: number): boolean => {
