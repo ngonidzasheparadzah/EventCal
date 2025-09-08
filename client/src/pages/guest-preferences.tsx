@@ -93,11 +93,40 @@ export default function GuestPreferences() {
     });
   };
 
+  // Define conflicting preference groups
+  const conflictGroups = [
+    ['student', 'professional'], // Students vs Working professionals
+    ['mature', 'young'], // Mature adults vs Young adults  
+    ['mixed_gender', 'female_only', 'male_only'], // Gender preferences (mutually exclusive)
+    ['quiet', 'social'] // Quiet vs Social environment
+  ];
+
   const handleRoommatePreferenceToggle = (prefId: string) => {
     const currentPrefs = state.step3.roommatePreferences || [];
-    const updatedPrefs = currentPrefs.includes(prefId)
-      ? currentPrefs.filter(id => id !== prefId)
-      : [...currentPrefs, prefId];
+    
+    // If already selected, just remove it
+    if (currentPrefs.includes(prefId)) {
+      const updatedPrefs = currentPrefs.filter(id => id !== prefId);
+      dispatch({ 
+        type: 'UPDATE_STEP3', 
+        payload: { roommatePreferences: updatedPrefs } 
+      });
+      return;
+    }
+    
+    // Find which conflict group this preference belongs to
+    const conflictGroup = conflictGroups.find(group => group.includes(prefId));
+    
+    let updatedPrefs = [...currentPrefs];
+    
+    // If this preference belongs to a conflict group, remove other options from that group
+    if (conflictGroup) {
+      const conflictingOptions = conflictGroup.filter(option => option !== prefId);
+      updatedPrefs = updatedPrefs.filter(pref => !conflictingOptions.includes(pref));
+    }
+    
+    // Add the new preference
+    updatedPrefs = [...updatedPrefs, prefId];
     
     dispatch({ 
       type: 'UPDATE_STEP3', 
