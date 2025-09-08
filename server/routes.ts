@@ -158,6 +158,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User contact routes  
+  app.patch('/api/user/:userId/contact', async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const { phoneNumber, city, address } = req.body;
+      
+      const updatedUser = await storage.updateUserContact(userId, {
+        phoneNumber,
+        city, 
+        address
+      });
+      
+      // Return user without sensitive data
+      const { passwordHash: _, ...userResponse } = updatedUser;
+      
+      res.json({
+        success: true,
+        user: userResponse
+      });
+      
+    } catch (error) {
+      console.error("Save user contact error:", error);
+      res.status(500).json({
+        error: "Internal server error",
+        message: "Failed to save user contact information"
+      });
+    }
+  });
+
   // User preferences routes
   app.post('/api/user/:userId/preferences', async (req, res) => {
     try {

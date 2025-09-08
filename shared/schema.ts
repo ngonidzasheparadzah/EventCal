@@ -22,6 +22,8 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   phoneNumber: varchar("phone_number"),
+  city: varchar("city"),
+  address: text("address"),
   // Local authentication fields
   passwordHash: varchar("password_hash"), // For local signup
   // User role and verification

@@ -93,6 +93,13 @@ export interface IStorage {
   // Search operations
   searchListings(query: string, filters?: any): Promise<Listing[]>;
   
+  // User Contact operations
+  updateUserContact(userId: string, contactData: {
+    phoneNumber?: string;
+    city?: string;
+    address?: string;
+  }): Promise<User>;
+
   // User Preferences operations
   createUserPreferences(userId: string, preferences: {
     preferredAmenities?: string[];
@@ -206,6 +213,25 @@ export class DatabaseStorage implements IStorage {
         updatedAt: new Date() 
       })
       .where(eq(users.authId, authId));
+  }
+
+  // User Contact operations
+  async updateUserContact(userId: string, contactData: {
+    phoneNumber?: string;
+    city?: string;
+    address?: string;
+  }): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({
+        phoneNumber: contactData.phoneNumber,
+        city: contactData.city,
+        address: contactData.address,
+        updatedAt: new Date()
+      })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
   }
 
   // User Preferences operations

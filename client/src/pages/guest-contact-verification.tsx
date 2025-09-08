@@ -87,9 +87,27 @@ export default function GuestContactVerification() {
       try {
         setIsNavigating(true);
         
-        // Update user with contact information
         if (state.userId) {
-          const response = await fetch(`/api/user/${state.userId}/onboarding`, {
+          // Save contact information
+          const contactResponse = await fetch(`/api/user/${state.userId}/contact`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              phoneNumber: state.step2.phoneNumber,
+              city: state.step2.city,
+              address: state.step2.address
+            }),
+          });
+          
+          if (!contactResponse.ok) {
+            setErrors({ general: 'Failed to save contact information. Please try again.' });
+            return;
+          }
+          
+          // Update onboarding step
+          const onboardingResponse = await fetch(`/api/user/${state.userId}/onboarding`, {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
@@ -97,7 +115,7 @@ export default function GuestContactVerification() {
             body: JSON.stringify({ step: 3 }),
           });
           
-          if (response.ok) {
+          if (onboardingResponse.ok) {
             // Update context step
             dispatch({ type: 'SET_CURRENT_STEP', payload: 3 });
             
