@@ -1,59 +1,77 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
-import { ChevronLeft, Plus, X } from 'lucide-react';
+import { ChevronLeft, X } from 'lucide-react';
 import { useOnboarding } from '@/contexts/OnboardingContext';
 
 export default function GuestPreferences() {
   const [, setLocation] = useLocation();
   const { state, dispatch, validateStep } = useOnboarding();
   const [isNavigating, setIsNavigating] = useState(false);
-  const [newHobby, setNewHobby] = useState('');
 
-  const handleDescriptionChange = (description: string) => {
+  // Amenity options
+  const amenityOptions = [
+    { id: 'wifi', name: 'Wi-Fi', icon: '📶' },
+    { id: 'parking', name: 'Parking', icon: '🚗' },
+    { id: 'kitchen', name: 'Kitchen', icon: '🍳' },
+    { id: 'laundry', name: 'Laundry', icon: '👕' },
+    { id: 'gym', name: 'Gym', icon: '💪' },
+    { id: 'pool', name: 'Pool', icon: '🏊' },
+    { id: 'garden', name: 'Garden', icon: '🌿' },
+    { id: 'security', name: '24/7 Security', icon: '🔒' },
+    { id: 'cleaning', name: 'Cleaning Service', icon: '🧽' },
+    { id: 'balcony', name: 'Balcony', icon: '🏗️' },
+    { id: 'aircon', name: 'Air Conditioning', icon: '❄️' },
+    { id: 'heating', name: 'Heating', icon: '🔥' }
+  ];
+
+  // Roommate preference options
+  const roommateOptions = [
+    { id: 'quiet', name: 'Quiet environment', icon: '🤫' },
+    { id: 'social', name: 'Social atmosphere', icon: '🎉' },
+    { id: 'student', name: 'Students preferred', icon: '🎓' },
+    { id: 'professional', name: 'Working professionals', icon: '💼' },
+    { id: 'mature', name: 'Mature adults (25+)', icon: '👥' },
+    { id: 'young', name: 'Young adults (18-25)', icon: '🧑‍🤝‍🧑' },
+    { id: 'no_smoking', name: 'Non-smoking only', icon: '🚭' },
+    { id: 'pets_ok', name: 'Pet-friendly', icon: '🐕' },
+    { id: 'mixed_gender', name: 'Mixed gender', icon: '👫' },
+    { id: 'female_only', name: 'Female residents only', icon: '👩' },
+    { id: 'male_only', name: 'Male residents only', icon: '👨' },
+    { id: 'clean', name: 'Clean & organized', icon: '✨' }
+  ];
+
+  const handleAccommodationLookingForChange = (value: string) => {
     dispatch({ 
       type: 'UPDATE_STEP3', 
-      payload: { description } 
+      payload: { accommodationLookingFor: value } 
     });
   };
 
-  const handleProfessionChange = (profession: string) => {
+  const handleAmenityToggle = (amenityId: string) => {
+    const currentAmenities = state.step3.preferredAmenities;
+    const updatedAmenities = currentAmenities.includes(amenityId)
+      ? currentAmenities.filter(id => id !== amenityId)
+      : [...currentAmenities, amenityId];
+    
     dispatch({ 
       type: 'UPDATE_STEP3', 
-      payload: { profession } 
+      payload: { preferredAmenities: updatedAmenities } 
     });
   };
 
-  const handleAddHobby = () => {
-    if (newHobby.trim() && !state.step3.hobbies.includes(newHobby.trim())) {
-      const updatedHobbies = [...state.step3.hobbies, newHobby.trim()];
-      dispatch({ 
-        type: 'UPDATE_STEP3', 
-        payload: { hobbies: updatedHobbies } 
-      });
-      setNewHobby('');
-    }
-  };
-
-  const handleRemoveHobby = (hobbyToRemove: string) => {
-    const updatedHobbies = state.step3.hobbies.filter(hobby => hobby !== hobbyToRemove);
+  const handleRoommatePreferenceToggle = (prefId: string) => {
+    const currentPrefs = state.step3.roommatePreferences;
+    const updatedPrefs = currentPrefs.includes(prefId)
+      ? currentPrefs.filter(id => id !== prefId)
+      : [...currentPrefs, prefId];
+    
     dispatch({ 
       type: 'UPDATE_STEP3', 
-      payload: { hobbies: updatedHobbies } 
+      payload: { roommatePreferences: updatedPrefs } 
     });
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddHobby();
-    }
   };
 
   const handleNext = async () => {
-    if (!validateStep(3)) {
-      return;
-    }
-
     setIsNavigating(true);
     
     try {
@@ -68,11 +86,13 @@ export default function GuestPreferences() {
     }
   };
 
+  const handleSkip = () => {
+    setLocation('/dashboard');
+  };
+
   const handleBack = () => {
     setLocation('/guest-contact-verification');
   };
-
-  const isFormValid = validateStep(3);
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col">
@@ -93,7 +113,7 @@ export default function GuestPreferences() {
       <div className="pb-2">
         <div className="responsive-container max-w-sm">
           <h1 className="text-lg font-semibold text-gray-900 text-center mb-3">About You</h1>
-          <p className="text-sm text-gray-600 text-center">Tell us a bit about yourself (optional)</p>
+          <p className="text-sm text-gray-600 text-center">Help us understand your preferences (optional)</p>
         </div>
       </div>
 
@@ -117,105 +137,102 @@ export default function GuestPreferences() {
         <div className="responsive-container max-w-sm w-full pb-6">
           <div className="space-y-6">
 
-            {/* Description */}
+            {/* What do you look for in accommodation */}
             <div>
-              <h3 className="text-base font-semibold text-gray-900 mb-3">Tell us about yourself</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-3">What do you look for in accommodation?</h3>
               <textarea
-                placeholder="Share a bit about who you are, what you enjoy, your background..."
-                value={state.step3.description}
-                onChange={(e) => handleDescriptionChange(e.target.value)}
+                placeholder="Describe what's important to you in accommodation - location, atmosphere, amenities, etc..."
+                value={state.step3.accommodationLookingFor}
+                onChange={(e) => handleAccommodationLookingForChange(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 rows={4}
-                data-testid="textarea-description"
+                data-testid="textarea-accommodation-looking-for"
               />
-              <p className="text-xs text-gray-500 mt-1">This helps others get to know you better</p>
+              <p className="text-xs text-gray-500 mt-1">This helps us show you the most relevant accommodations</p>
             </div>
 
-            {/* Profession */}
+            {/* Preferred Amenities */}
             <div>
-              <h3 className="text-base font-semibold text-gray-900 mb-3">What do you do?</h3>
-              <input
-                type="text"
-                placeholder="Student, Software Engineer, Doctor, Entrepreneur..."
-                value={state.step3.profession}
-                onChange={(e) => handleProfessionChange(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                data-testid="input-profession"
-              />
-              <p className="text-xs text-gray-500 mt-1">Your profession or current occupation</p>
-            </div>
-
-            {/* Hobbies */}
-            <div>
-              <h3 className="text-base font-semibold text-gray-900 mb-3">Hobbies & Interests</h3>
-              
-              {/* Add new hobby input */}
-              <div className="flex gap-2 mb-3">
-                <input
-                  type="text"
-                  placeholder="Add a hobby or interest..."
-                  value={newHobby}
-                  onChange={(e) => setNewHobby(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  data-testid="input-new-hobby"
-                />
-                <button
-                  onClick={handleAddHobby}
-                  disabled={!newHobby.trim()}
-                  className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-                  data-testid="button-add-hobby"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Display current hobbies */}
-              {state.step3.hobbies.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {state.step3.hobbies.map((hobby, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
-                      data-testid={`chip-hobby-${index}`}
-                    >
-                      <span>{hobby}</span>
-                      <button
-                        onClick={() => handleRemoveHobby(hobby)}
-                        className="ml-2 text-blue-600 hover:text-blue-800"
-                        data-testid={`button-remove-hobby-${index}`}
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
+              <h3 className="text-base font-semibold text-gray-900 mb-3">Preferred Amenities</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {amenityOptions.map(amenity => (
+                  <button
+                    key={amenity.id}
+                    type="button"
+                    onClick={() => handleAmenityToggle(amenity.id)}
+                    className={`p-2 rounded-lg border text-left transition-all duration-200 ${
+                      state.step3.preferredAmenities.includes(amenity.id)
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
+                    data-testid={`button-amenity-${amenity.id}`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm">{amenity.icon}</span>
+                      <span className="text-xs font-medium text-gray-900">{amenity.name}</span>
                     </div>
-                  ))}
-                </div>
-              )}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">Select the amenities most important to you</p>
+            </div>
 
-              <p className="text-xs text-gray-500">Share your hobbies, interests, or activities you enjoy</p>
+            {/* Roommate Preferences */}
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3">Roommate & Environment Preferences</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {roommateOptions.map(option => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => handleRoommatePreferenceToggle(option.id)}
+                    className={`p-2 rounded-lg border text-left transition-all duration-200 ${
+                      state.step3.roommatePreferences.includes(option.id)
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
+                    data-testid={`button-roommate-${option.id}`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm">{option.icon}</span>
+                      <span className="text-xs font-medium text-gray-900">{option.name}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">Tell us about your ideal living environment</p>
             </div>
 
           </div>
         </div>
       </div>
 
-      {/* Continue Button */}
+      {/* Action Buttons */}
       <div className="p-4">
         <div className="responsive-container max-w-sm">
-          <button 
-            onClick={handleNext}
-            disabled={isNavigating || !isFormValid}
-            className={`w-full py-3 rounded-full text-white font-medium transition-all duration-200 ${
-              isFormValid && !isNavigating
-                ? 'bg-blue-500 hover:bg-blue-600 active:scale-95' 
-                : 'bg-gray-300 cursor-not-allowed'
-            }`}
-            data-testid="button-complete-signup"
-          >
-            {isNavigating ? 'Completing...' : 'Complete Sign Up'}
-          </button>
+          <div className="flex gap-3">
+            <button 
+              onClick={handleSkip}
+              className="flex-1 py-3 rounded-full border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-all duration-200"
+              data-testid="button-skip"
+            >
+              Skip
+            </button>
+            <button 
+              onClick={handleNext}
+              disabled={isNavigating}
+              className={`flex-1 py-3 rounded-full text-white font-medium transition-all duration-200 ${
+                !isNavigating
+                  ? 'bg-blue-500 hover:bg-blue-600 active:scale-95' 
+                  : 'bg-gray-300 cursor-not-allowed'
+              }`}
+              data-testid="button-complete-signup"
+            >
+              {isNavigating ? 'Completing...' : 'Complete Sign Up'}
+            </button>
+          </div>
           <p className="text-xs text-gray-500 text-center mt-2">
-            All fields are optional, but help us personalize your experience
+            All preferences are optional and can be updated later
           </p>
         </div>
       </div>
