@@ -17,6 +17,40 @@ export default function GuestPreferences() {
     { id: 'guesthouse', name: 'Guesthouse', icon: '🏡' }
   ];
 
+  const stayTypes = [
+    { id: 'short_term', name: 'Short-term (1-3 months)', icon: '📅' },
+    { id: 'medium_term', name: 'Medium-term (3-12 months)', icon: '🗓️' },
+    { id: 'long_term', name: 'Long-term (1+ years)', icon: '📆' },
+    { id: 'flexible', name: 'Flexible duration', icon: '🔄' }
+  ];
+
+  const priceSensitivityOptions = [
+    { id: 'budget', name: 'Budget-conscious', icon: '💰' },
+    { id: 'value', name: 'Value for money', icon: '⚖️' },
+    { id: 'comfort', name: 'Comfort priority', icon: '🛋️' },
+    { id: 'luxury', name: 'Luxury preferred', icon: '✨' }
+  ];
+
+  const roommateOptions = [
+    { id: 'quiet', name: 'Quiet environment', icon: '🤫' },
+    { id: 'social', name: 'Social atmosphere', icon: '🎉' },
+    { id: 'student', name: 'Students preferred', icon: '🎓' },
+    { id: 'professional', name: 'Working professionals', icon: '💼' },
+    { id: 'mature', name: 'Mature adults (25+)', icon: '👥' },
+    { id: 'young', name: 'Young adults (18-25)', icon: '🧑‍🤝‍🧑' }
+  ];
+
+  const lifestyleOptions = [
+    { id: 'pets_friendly', name: 'Pet-friendly', icon: '🐕' },
+    { id: 'no_pets', name: 'No pets', icon: '🚫🐕' },
+    { id: 'smoking_ok', name: 'Smoking allowed', icon: '🚬' },
+    { id: 'non_smoking', name: 'Non-smoking only', icon: '🚭' },
+    { id: 'male_only', name: 'Male residents only', icon: '👨' },
+    { id: 'female_only', name: 'Female residents only', icon: '👩' },
+    { id: 'mixed_gender', name: 'Mixed gender', icon: '👫' },
+    { id: 'accessible', name: 'Wheelchair accessible', icon: '♿' }
+  ];
+
   const amenityOptions = [
     { id: 'wifi', name: 'Wi-Fi', icon: '📶' },
     { id: 'parking', name: 'Parking', icon: '🚗' },
@@ -37,6 +71,44 @@ export default function GuestPreferences() {
     dispatch({ 
       type: 'UPDATE_STEP3', 
       payload: { accommodationType: newTypes } 
+    });
+  };
+
+  const handleStayTypeChange = (stayType: string) => {
+    dispatch({ 
+      type: 'UPDATE_STEP3', 
+      payload: { stayType } 
+    });
+  };
+
+  const handlePriceSensitivityChange = (sensitivity: string) => {
+    dispatch({ 
+      type: 'UPDATE_STEP3', 
+      payload: { priceSensitivity: sensitivity } 
+    });
+  };
+
+  const handleRoommatePreferenceChange = (prefId: string) => {
+    const currentPrefs = state.step3.roommatePreferences;
+    const newPrefs = currentPrefs.includes(prefId)
+      ? currentPrefs.filter(id => id !== prefId)
+      : [...currentPrefs, prefId];
+    
+    dispatch({ 
+      type: 'UPDATE_STEP3', 
+      payload: { roommatePreferences: newPrefs } 
+    });
+  };
+
+  const handleLifestylePreferenceChange = (prefId: string) => {
+    const currentPrefs = state.step3.lifestylePreferences;
+    const newPrefs = currentPrefs.includes(prefId)
+      ? currentPrefs.filter(id => id !== prefId)
+      : [...currentPrefs, prefId];
+    
+    dispatch({ 
+      type: 'UPDATE_STEP3', 
+      payload: { lifestylePreferences: newPrefs } 
     });
   };
 
@@ -80,14 +152,6 @@ export default function GuestPreferences() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateStep(3)) {
-      dispatch({ 
-        type: 'SET_ERRORS', 
-        payload: { step3: 'Please select at least one accommodation type and set a valid price range' } 
-      });
-      return;
-    }
 
     try {
       setIsNavigating(true);
@@ -151,6 +215,7 @@ export default function GuestPreferences() {
       <div className="pb-2">
         <div className="responsive-container max-w-sm">
           <h1 className="text-lg font-semibold text-gray-900 text-center mb-3">Your Preferences</h1>
+          <p className="text-sm text-gray-600 text-center">Help us find your perfect accommodation</p>
         </div>
       </div>
 
@@ -198,14 +263,36 @@ export default function GuestPreferences() {
                   </button>
                 ))}
               </div>
-              {state.step3.accommodationType.length === 0 && state.errors.step3 && (
-                <p className="text-red-500 text-xs mt-2">Please select at least one accommodation type</p>
-              )}
+            </div>
+
+            {/* Stay Duration */}
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3">How long do you plan to stay?</h3>
+              <div className="grid grid-cols-1 gap-3">
+                {stayTypes.map(type => (
+                  <button
+                    key={type.id}
+                    type="button"
+                    onClick={() => handleStayTypeChange(type.id)}
+                    className={`p-3 rounded-xl border-2 text-left transition-all duration-200 ${
+                      state.step3.stayType === type.id
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
+                    data-testid={`button-stay-${type.id}`}
+                  >
+                    <div className="flex items-center">
+                      <span className="text-lg mr-3">{type.icon}</span>
+                      <span className="text-sm font-medium text-gray-900">{type.name}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Price Range */}
             <div>
-              <h3 className="text-base font-semibold text-gray-900 mb-3">Price Range (USD per night)</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-3">Budget Range (USD per night)</h3>
               <div className="space-y-4">
                 <div className="flex items-center space-x-4">
                   <div className="flex-1">
@@ -245,6 +332,81 @@ export default function GuestPreferences() {
               </div>
             </div>
 
+            {/* Price Sensitivity */}
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3">What's your priority when choosing accommodation?</h3>
+              <div className="grid grid-cols-1 gap-3">
+                {priceSensitivityOptions.map(option => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => handlePriceSensitivityChange(option.id)}
+                    className={`p-3 rounded-xl border-2 text-left transition-all duration-200 ${
+                      state.step3.priceSensitivity === option.id
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
+                    data-testid={`button-price-${option.id}`}
+                  >
+                    <div className="flex items-center">
+                      <span className="text-lg mr-3">{option.icon}</span>
+                      <span className="text-sm font-medium text-gray-900">{option.name}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Roommate Preferences */}
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3">Roommate & Environment Preferences</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {roommateOptions.map(option => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => handleRoommatePreferenceChange(option.id)}
+                    className={`p-2 rounded-lg border text-left transition-all duration-200 ${
+                      state.step3.roommatePreferences.includes(option.id)
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
+                    data-testid={`button-roommate-${option.id}`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm">{option.icon}</span>
+                      <span className="text-xs font-medium text-gray-900">{option.name}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Lifestyle Preferences */}
+            <div>
+              <h3 className="text-base font-semibold text-gray-900 mb-3">Lifestyle & Accessibility Preferences</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {lifestyleOptions.map(option => (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => handleLifestylePreferenceChange(option.id)}
+                    className={`p-2 rounded-lg border text-left transition-all duration-200 ${
+                      state.step3.lifestylePreferences.includes(option.id)
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 bg-white hover:border-gray-300'
+                    }`}
+                    data-testid={`button-lifestyle-${option.id}`}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm">{option.icon}</span>
+                      <span className="text-xs font-medium text-gray-900">{option.name}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
             {/* Preferred Location */}
             <div>
               <h3 className="text-base font-semibold text-gray-900 mb-3">Preferred Location</h3>
@@ -263,7 +425,7 @@ export default function GuestPreferences() {
 
             {/* Amenities */}
             <div>
-              <h3 className="text-base font-semibold text-gray-900 mb-3">Preferred Amenities (Optional)</h3>
+              <h3 className="text-base font-semibold text-gray-900 mb-3">Preferred Amenities</h3>
               <div className="grid grid-cols-2 gap-2">
                 {amenityOptions.map(amenity => (
                   <button
@@ -286,12 +448,16 @@ export default function GuestPreferences() {
               </div>
             </div>
 
-            {/* Error Display */}
-            {state.errors.step3 && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
-                <p className="text-red-600 text-sm">{state.errors.step3}</p>
+            {/* Skip Notice */}
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+              <div className="flex items-center">
+                <span className="text-blue-600 text-lg mr-3">ℹ️</span>
+                <div>
+                  <p className="text-sm font-medium text-blue-900">Optional Step</p>
+                  <p className="text-xs text-blue-700">You can skip this step and set preferences later in your profile.</p>
+                </div>
               </div>
-            )}
+            </div>
 
             {/* Complete Button */}
             <button
@@ -317,7 +483,7 @@ export default function GuestPreferences() {
               className="text-gray-600 font-medium hover:underline text-sm"
               data-testid="button-skip"
             >
-              Skip preferences
+              Skip and explore RooMe
             </button>
           </div>
         </div>

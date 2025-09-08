@@ -18,7 +18,11 @@ export interface OnboardingStep2Data {
 
 export interface OnboardingStep3Data {
   accommodationType: string[];
+  stayType: string;
   priceRange: [number, number];
+  priceSensitivity: string;
+  roommatePreferences: string[];
+  lifestylePreferences: string[];
   amenities: string[];
   location: string;
 }
@@ -66,7 +70,11 @@ const initialState: OnboardingState = {
   },
   step3: {
     accommodationType: [],
+    stayType: '',
     priceRange: [0, 1000],
+    priceSensitivity: '',
+    roommatePreferences: [],
+    lifestylePreferences: [],
     amenities: [],
     location: ''
   }
@@ -219,18 +227,8 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   };
 
   const validateStep3 = (): boolean => {
-    const { accommodationType, priceRange } = state.step3;
-    
-    // At least one accommodation type selected
-    if (accommodationType.length === 0) {
-      return false;
-    }
-    
-    // Valid price range
-    if (priceRange[0] < 0 || priceRange[1] <= priceRange[0]) {
-      return false;
-    }
-    
+    // Step 3 is optional, so always return true
+    // Users can skip this step entirely
     return true;
   };
 
