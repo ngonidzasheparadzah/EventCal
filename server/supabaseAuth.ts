@@ -88,12 +88,7 @@ export function setupAuthRoutes(app: Express) {
     }
   });
 
-  // Sign up (handled by Supabase on frontend)
-  app.post('/api/auth/signup', async (req, res) => {
-    res.status(400).json({ 
-      message: "Sign up should be handled by Supabase client on frontend" 
-    });
-  });
+  // Note: Sign up is handled by local authentication in routes.ts
 
   // Sign in (handled by Supabase on frontend)
   app.post('/api/auth/signin', async (req, res) => {
