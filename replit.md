@@ -38,6 +38,25 @@ RooMe Zimbabwe is a full-stack accommodation booking platform built specifically
 - **Responsive**: Perfect scaling across all breakpoints (360px→1440px)
 - **Animation**: Smooth transitions and hover effects maintained
 
+#### ✅ **3-Step Onboarding Process Redesign** (September 2025)
+**Change**: Streamlined guest onboarding from 4 steps to 3 steps, replacing accommodation preferences with personal information
+
+**New Onboarding Flow**:
+1. **Step 1 - Basic Info**: Full name, email, password (guest-signup.tsx)
+2. **Step 2 - Contact & Verification**: Phone number, address, city, email verification (guest-contact-verification.tsx)  
+3. **Step 3 - About You**: Personal description, hobbies, profession (guest-preferences.tsx)
+
+**Database Schema Updates**:
+- **Enhanced user_preferences table**: Added `description` (text), `hobbies` (jsonb array), `profession` (varchar)
+- **Removed Fields**: accommodationType, stayType, priceRange, priceSensitivity, roommatePreferences, lifestylePreferences, amenities, location
+- **Data Storage**: Personal information stored only after complete signup process
+
+**UI/UX Improvements**:
+- **"About You" Section**: User-friendly personal information collection with optional fields
+- **Interactive Hobbies**: Add/remove hobby chips with real-time validation
+- **Progress Bar**: Updated to 3-step visual indicator across all onboarding pages
+- **Validation**: Flexible validation requiring at least one personal field to be filled
+
 ### Onboarding Experience Components
 
 #### 1. Welcome Screen Carousel Component
