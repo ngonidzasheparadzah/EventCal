@@ -701,6 +701,86 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // OTP Storage (In production, use Redis or database)
+  const otpStorage = new Map<string, { code: string; expires: number; phoneNumber: string }>();
+
+  // Send OTP
+  app.post('/api/auth/send-otp', async (req, res) => {
+    try {
+      const { phoneNumber, userId } = req.body;
+      
+      if (!phoneNumber || !userId) {
+        return res.status(400).json({ message: 'Phone number and user ID are required' });
+      }
+      
+      // Generate 6-digit OTP
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      // Store OTP with 5-minute expiration
+      const expires = Date.now() + 5 * 60 * 1000; // 5 minutes
+      otpStorage.set(userId, { code: otpCode, expires, phoneNumber });
+      
+      // In production, send SMS here using Twilio or similar service
+      console.log(`OTP for ${phoneNumber}: ${otpCode}`);
+      
+      res.status(200).json({ 
+        success: true, 
+        message: 'OTP sent successfully',
+        // Include OTP in response for testing (remove in production)
+        otpCode: process.env.NODE_ENV === 'development' ? otpCode : undefined
+      });
+      
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      res.status(500).json({ message: 'Failed to send OTP' });
+    }
+  });
+
+  // Verify OTP
+  app.post('/api/auth/verify-otp', async (req, res) => {
+    try {
+      const { phoneNumber, otpCode, userId } = req.body;
+      
+      if (!phoneNumber || !otpCode || !userId) {
+        return res.status(400).json({ message: 'Phone number, OTP code, and user ID are required' });
+      }
+      
+      const storedOTP = otpStorage.get(userId);
+      
+      if (!storedOTP) {
+        return res.status(400).json({ message: 'No OTP found. Please request a new one.' });
+      }
+      
+      if (Date.now() > storedOTP.expires) {
+        otpStorage.delete(userId);
+        return res.status(400).json({ message: 'OTP has expired. Please request a new one.' });
+      }
+      
+      if (storedOTP.phoneNumber !== phoneNumber) {
+        return res.status(400).json({ message: 'Phone number mismatch' });
+      }
+      
+      if (storedOTP.code !== otpCode) {
+        return res.status(400).json({ message: 'Invalid OTP code' });
+      }
+      
+      // OTP is valid, update user verification status
+      await storage.updateUserVerificationStatus(userId, 'phone', true);
+      
+      // Clean up OTP
+      otpStorage.delete(userId);
+      
+      res.status(200).json({ 
+        success: true, 
+        message: 'Phone number verified successfully' 
+      });
+      
+    } catch (error) {
+      console.error('Verify OTP error:', error);
+      res.status(500).json({ message: 'Failed to verify OTP' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
