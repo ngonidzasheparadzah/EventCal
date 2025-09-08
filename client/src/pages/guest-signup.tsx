@@ -142,9 +142,9 @@ export default function GuestSignup() {
   };
 
   return (
-    <div className="h-screen bg-gray-50 flex flex-col">
+    <div className="h-screen bg-slate-800 flex flex-col">
       {/* Header */}
-      <div className="flex items-center app-content">
+      <div className="flex items-center app-content pt-4">
         <button 
           onClick={() => setLocation('/website-type')}
           className="px-4 py-2 rounded-full text-white text-sm font-medium hover:opacity-90 transition-opacity"
@@ -157,24 +157,24 @@ export default function GuestSignup() {
       </div>
 
       {/* Page Title */}
-      <div className="pb-2">
+      <div className="pb-6">
         <div className="responsive-container max-w-sm">
-          <h1 className="text-lg font-semibold text-gray-900 text-center mb-3">Basic Info</h1>
+          <h1 className="text-2xl font-bold text-white text-center mb-3">Sign Up</h1>
         </div>
       </div>
 
       {/* Progress Bar */}
-      <div className="pb-4">
+      <div className="pb-8">
         <div className="responsive-container max-w-sm">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 w-full">
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold" style={{ backgroundColor: '#0390D7', color: 'white' }}>1</div>
-              <div className="w-12 h-1 bg-gray-200"></div>
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-400">2</div>
-              <div className="w-12 h-1 bg-gray-200"></div>
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-400">3</div>
-              <div className="w-12 h-1 bg-gray-200"></div>
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-400">4</div>
+              <div className="flex-1 h-1 bg-slate-600 rounded"></div>
+              <div className="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center text-xs font-semibold text-slate-400">2</div>
+              <div className="flex-1 h-1 bg-slate-600 rounded"></div>
+              <div className="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center text-xs font-semibold text-slate-400">3</div>
+              <div className="flex-1 h-1 bg-slate-600 rounded"></div>
+              <div className="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center text-xs font-semibold text-slate-400">4</div>
             </div>
           </div>
         </div>
@@ -185,72 +185,63 @@ export default function GuestSignup() {
         <div className="responsive-container max-w-sm w-full">
 
           {/* Sign Up Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Full Name */}
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 text-lg">
-                👤
-              </div>
               <input
                 type="text"
                 name="fullName"
-                placeholder="Full Name"
+                placeholder="First Name"
                 value={formData.fullName}
                 onChange={handleInputChange}
-                className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150 ${errors.fullName ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full px-4 py-4 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:border-transparent transition-all duration-150 ${errors.fullName ? 'focus:ring-red-500 border-red-500' : 'focus:ring-blue-500'}`}
                 data-testid="input-full-name"
               />
-              {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>}
+              {errors.fullName && <p className="text-red-400 text-sm mt-2">{errors.fullName}</p>}
             </div>
 
             {/* Email */}
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 text-lg">
-                ✉️
-              </div>
               <input
                 type="email"
                 name="email"
-                placeholder="Email Address"
+                placeholder="Email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150 ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full px-4 py-4 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:border-transparent transition-all duration-150 ${errors.email ? 'focus:ring-red-500 border-red-500' : 'focus:ring-blue-500'}`}
                 data-testid="input-email"
               />
-              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+              {errors.email && <p className="text-red-400 text-sm mt-2">{errors.email}</p>}
             </div>
 
             {/* Password */}
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 text-lg">
-                🔒
-              </div>
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleInputChange}
-                className={`w-full pl-10 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150 ${errors.password ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full px-4 pr-16 py-4 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:border-transparent transition-all duration-150 ${errors.password ? 'focus:ring-red-500 border-red-500' : 'focus:ring-blue-500'}`}
                 data-testid="input-password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 text-lg"
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-white transition-colors"
                 data-testid="button-toggle-password"
               >
-                {showPassword ? '🙈' : '👁️'}
+                <span className="text-sm font-medium">Show</span>
               </button>
             </div>
             {/* Password Strength Indicator */}
             {formData.password && (
               <div className="mt-2">
-                <div className="flex justify-between text-xs mb-1">
-                  <span className="text-gray-600">Password strength:</span>
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-slate-300">Password strength:</span>
                   <span style={{ color: getPasswordStrengthColor(passwordStrength) }}>{getPasswordStrengthLabel(passwordStrength)}</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-slate-600 rounded-full h-2">
                   <div 
                     className="h-2 rounded-full transition-all duration-300"
                     style={{ 
@@ -259,41 +250,45 @@ export default function GuestSignup() {
                     }}
                   ></div>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">Must contain: 8+ characters, uppercase, lowercase, number, symbol</p>
+                <p className="text-sm text-slate-400 mt-2">Must contain: 8+ characters, uppercase, lowercase, number, symbol</p>
               </div>
             )}
-            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+            {errors.password && <p className="text-red-400 text-sm mt-2">{errors.password}</p>}
 
             {/* Confirm Password */}
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 text-lg">
-                🔒
-              </div>
               <input
                 type={showPassword ? "text" : "password"}
                 name="confirmPassword"
                 placeholder="Confirm Password"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
-                className={`w-full pl-10 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-150 ${errors.confirmPassword ? 'border-red-500' : 'border-gray-300'}`}
+                className={`w-full px-4 pr-16 py-4 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:ring-2 focus:border-transparent transition-all duration-150 ${errors.confirmPassword ? 'focus:ring-red-500 border-red-500' : 'focus:ring-blue-500'}`}
                 data-testid="input-confirm-password"
               />
-              {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-white transition-colors"
+              >
+                <span className="text-sm font-medium">Show</span>
+              </button>
+              {errors.confirmPassword && <p className="text-red-400 text-sm mt-2">{errors.confirmPassword}</p>}
             </div>
 
             {/* General Error */}
             {errors.general && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl">
-                <p className="text-red-600 text-sm">{errors.general}</p>
+              <div className="mt-4 p-4 bg-red-900/20 border border-red-500/20 rounded-xl">
+                <p className="text-red-400 text-sm">{errors.general}</p>
               </div>
             )}
 
-            {/* Continue Button */}
+            {/* Sign Up Button */}
             <button
               type="submit"
-              className="w-full h-14 text-lg font-semibold shadow-lg rounded-2xl border-0 mt-6"
+              className="w-full h-14 text-lg font-semibold shadow-lg rounded-xl border-0 mt-8 transition-all duration-200"
               style={{ 
-                backgroundColor: isNavigating ? '#9CA3AF' : '#0390D7',
+                backgroundColor: isNavigating ? '#64748B' : '#0390D7',
                 color: '#FFFFFF'
               }}
               onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => !isNavigating && (e.currentTarget.style.backgroundColor = '#027BB8')}
@@ -301,31 +296,21 @@ export default function GuestSignup() {
               data-testid="button-continue"
               disabled={isNavigating}
             >
-              {isNavigating ? 'Creating Account...' : 'Continue'}
+              {isNavigating ? 'Creating Account...' : 'Sign up'}
             </button>
           </form>
 
-          {/* Not Now Link */}
-          <div className="text-center mt-6">
-            <button 
-              onClick={() => setLocation('/home')}
-              className="text-gray-600 font-medium hover:underline text-sm"
-              data-testid="button-not-now"
-            >
-              Not Now
-            </button>
-          </div>
-
           {/* Login Link */}
-          <div className="text-center mt-4">
-            <p className="text-sm text-gray-600">
+          <div className="text-center mt-8">
+            <p className="text-sm text-slate-300">
               Already have an account?{' '}
               <button 
                 onClick={() => setLocation('/login')}
-                className="text-blue-600 font-medium hover:underline"
+                className="font-medium hover:underline transition-colors"
+                style={{ color: '#0390D7' }}
                 data-testid="link-login"
               >
-                Sign In
+                Sign in
               </button>
             </p>
           </div>
