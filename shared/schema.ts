@@ -12,6 +12,7 @@ import {
   boolean,
   pgEnum,
 } from "drizzle-orm/pg-core";
+import { many, one } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 
 // User storage table (supports both local signup and Supabase Auth)
