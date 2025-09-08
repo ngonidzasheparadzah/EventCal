@@ -1,6 +1,6 @@
-import { Pool } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import pkg from 'pg';
+const { Pool } = pkg;
+import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
 
 // Use Supabase database exclusively
@@ -12,12 +12,8 @@ if (!databaseUrl) {
   );
 }
 
-// Configure WebSocket for serverless environments
-if (typeof globalThis !== 'undefined' && !globalThis.WebSocket) {
-  import('@neondatabase/serverless').then(({ neonConfig }) => {
-    neonConfig.webSocketConstructor = ws;
-  });
-}
-
-export const pool = new Pool({ connectionString: databaseUrl });
-export const db = drizzle({ client: pool, schema });
+export const pool = new Pool({ 
+  connectionString: databaseUrl,
+  ssl: { rejectUnauthorized: false }
+});
+export const db = drizzle(pool, { schema });
