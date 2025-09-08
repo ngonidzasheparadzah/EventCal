@@ -176,12 +176,10 @@ export default function GuestSignup() {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold" style={{ backgroundColor: '#0390D7', color: 'white' }}>1</div>
-              <div className="w-12 h-1 bg-gray-200"></div>
+              <div className="w-16 h-1 bg-gray-200"></div>
               <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-400">2</div>
-              <div className="w-12 h-1 bg-gray-200"></div>
+              <div className="w-16 h-1 bg-gray-200"></div>
               <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-400">3</div>
-              <div className="w-12 h-1 bg-gray-200"></div>
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-400">4</div>
             </div>
           </div>
         </div>

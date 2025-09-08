@@ -217,10 +217,12 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   };
 
   const validateStep3 = (): boolean => {
-    const { description, profession } = state.step3;
+    const { description, profession, hobbies } = state.step3;
     
     // All fields are optional, but at least one should be filled
-    return description.trim() !== '' || profession.trim() !== '' || state.step3.hobbies.length > 0;
+    return (description && description.trim() !== '') || 
+           (profession && profession.trim() !== '') || 
+           (hobbies && hobbies.length > 0);
   };
 
   const canAdvanceToStep = (targetStep: number): boolean => {
