@@ -5,14 +5,10 @@ import { useOnboarding } from '@/contexts/OnboardingContext';
 
 export default function GuestContactVerification() {
   const [, setLocation] = useLocation();
-  const { state, dispatch, validateStep, canAdvanceToStep, sendOTP, verifyOTP } = useOnboarding();
+  const { state, dispatch, validateStep, canAdvanceToStep } = useOnboarding();
   const [isNavigating, setIsNavigating] = useState(false);
   const [errors, setErrors] = useState<{[key: string]: string}>({});
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpVerificationAttempted, setOtpVerificationAttempted] = useState(false);
-  const [otpCountdown, setOtpCountdown] = useState(0);
-
   // Get user data from localStorage (fallback) or context
   const [userData, setUserData] = useState<any>(null);
   
@@ -27,14 +23,6 @@ export default function GuestContactVerification() {
       }
     }
   }, [state.step1.email]);
-
-  // OTP countdown timer
-  useEffect(() => {
-    if (otpCountdown > 0) {
-      const timer = setTimeout(() => setOtpCountdown(otpCountdown - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [otpCountdown]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
@@ -78,10 +66,6 @@ export default function GuestContactVerification() {
       newErrors.agreeToTerms = 'You must agree to the terms and conditions';
     }
 
-    // Phone verification validation
-    if (!state.step2.phoneVerified) {
-      newErrors.phoneVerified = 'Please verify your phone number with OTP';
-    }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -95,34 +79,6 @@ export default function GuestContactVerification() {
     }, 2000);
   };
 
-  const handleSendOTP = async () => {
-    if (!state.step2.phoneNumber || !state.userId) {
-      setErrors({ otp: 'Please enter a phone number first' });
-      return;
-    }
-
-    const success = await sendOTP();
-    if (success) {
-      setOtpSent(true);
-      setOtpCountdown(300); // 5 minutes
-      setErrors({ ...errors, otp: '' });
-    }
-  };
-
-  const handleVerifyOTP = async (code: string) => {
-    if (!code || code.length !== 6) {
-      setErrors({ otp: 'Please enter a valid 6-digit OTP code' });
-      return;
-    }
-
-    setOtpVerificationAttempted(true);
-    const success = await verifyOTP(code);
-    
-    if (success) {
-      setErrors({ ...errors, otp: '' });
-    }
-    setOtpVerificationAttempted(false);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -255,53 +211,6 @@ export default function GuestContactVerification() {
                 data-testid="input-phone"
               />
               {errors.phoneNumber && <p className="text-red-500 text-xs mt-1">{errors.phoneNumber}</p>}
-              
-              {/* OTP Verification Section */}
-              {state.step2.phoneNumber && (
-                <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-xl">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-blue-900">Phone Verification</span>
-                    {state.step2.phoneVerified ? (
-                      <div className="text-green-600 text-sm font-medium">✅ Verified</div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleSendOTP}
-                        disabled={otpCountdown > 0 || state.isLoading}
-                        className="px-3 py-1 text-xs bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
-                        data-testid="button-send-otp"
-                      >
-                        {otpCountdown > 0 ? `Resend in ${Math.floor(otpCountdown / 60)}:${String(otpCountdown % 60).padStart(2, '0')}` : 'Send OTP'}
-                      </button>
-                    )}
-                  </div>
-                  
-                  {otpSent && !state.step2.phoneVerified && (
-                    <div className="space-y-2">
-                      <input
-                        type="text"
-                        name="otpCode"
-                        placeholder="Enter 6-digit OTP"
-                        value={state.step2.otpCode}
-                        onChange={handleInputChange}
-                        maxLength={6}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg tracking-widest"
-                        data-testid="input-otp"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleVerifyOTP(state.step2.otpCode)}
-                        disabled={otpVerificationAttempted || state.step2.otpCode.length !== 6}
-                        className="w-full px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 text-sm"
-                        data-testid="button-verify-otp"
-                      >
-                        {otpVerificationAttempted ? 'Verifying...' : 'Verify OTP'}
-                      </button>
-                      {state.errors.otp && <p className="text-red-500 text-xs">{state.errors.otp}</p>}
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
             {/* City Selection */}

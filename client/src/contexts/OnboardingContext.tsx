@@ -14,8 +14,6 @@ export interface OnboardingStep2Data {
   address: string;
   agreeToTerms: boolean;
   emailVerified: boolean;
-  phoneVerified: boolean;
-  otpCode: string;
 }
 
 export interface OnboardingStep3Data {
@@ -64,9 +62,7 @@ const initialState: OnboardingState = {
     city: '',
     address: '',
     agreeToTerms: false,
-    emailVerified: false,
-    phoneVerified: false,
-    otpCode: ''
+    emailVerified: false
   },
   step3: {
     accommodationType: [],
@@ -127,8 +123,6 @@ interface OnboardingContextType {
   validateStep: (step: number) => boolean;
   canAdvanceToStep: (step: number) => boolean;
   saveToStorage: () => void;
-  sendOTP: () => Promise<boolean>;
-  verifyOTP: (code: string) => Promise<boolean>;
 }
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
@@ -207,7 +201,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
   };
 
   const validateStep2 = (): boolean => {
-    const { phoneNumber, city, address, agreeToTerms, phoneVerified } = state.step2;
+    const { phoneNumber, city, address, agreeToTerms } = state.step2;
     
     // Check required fields
     if (!phoneNumber.trim() || !city || !address.trim() || !agreeToTerms) {
@@ -220,10 +214,6 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
       return false;
     }
     
-    // Phone must be verified
-    if (!phoneVerified) {
-      return false;
-    }
     
     return true;
   };
@@ -250,70 +240,6 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     return currentStepValid && targetStep === state.currentStep + 1;
   };
 
-  // OTP functions
-  const sendOTP = async (): Promise<boolean> => {
-    try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      
-      const response = await fetch('/api/auth/send-otp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          phoneNumber: state.step2.phoneNumber,
-          userId: state.userId
-        }),
-      });
-      
-      const result = await response.json();
-      
-      if (response.ok) {
-        return true;
-      } else {
-        dispatch({ type: 'SET_ERRORS', payload: { otp: result.message || 'Failed to send OTP' } });
-        return false;
-      }
-    } catch (error) {
-      dispatch({ type: 'SET_ERRORS', payload: { otp: 'Network error. Please try again.' } });
-      return false;
-    } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
-    }
-  };
-
-  const verifyOTP = async (code: string): Promise<boolean> => {
-    try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      
-      const response = await fetch('/api/auth/verify-otp', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          phoneNumber: state.step2.phoneNumber,
-          otpCode: code,
-          userId: state.userId
-        }),
-      });
-      
-      const result = await response.json();
-      
-      if (response.ok) {
-        dispatch({ type: 'UPDATE_STEP2', payload: { phoneVerified: true, otpCode: code } });
-        return true;
-      } else {
-        dispatch({ type: 'SET_ERRORS', payload: { otp: result.message || 'Invalid OTP code' } });
-        return false;
-      }
-    } catch (error) {
-      dispatch({ type: 'SET_ERRORS', payload: { otp: 'Network error. Please try again.' } });
-      return false;
-    } finally {
-      dispatch({ type: 'SET_LOADING', payload: false });
-    }
-  };
 
   const contextValue: OnboardingContextType = {
     state,
@@ -321,8 +247,6 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     validateStep,
     canAdvanceToStep,
     saveToStorage,
-    sendOTP,
-    verifyOTP,
   };
 
   return (
