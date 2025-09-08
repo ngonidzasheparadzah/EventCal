@@ -3,8 +3,8 @@ import { drizzle } from 'drizzle-orm/neon-serverless';
 import ws from "ws";
 import * as schema from "@shared/schema";
 
-// Support both Neon and Supabase databases
-const databaseUrl = process.env.SUPABASE_DATABASE_URL || process.env.DATABASE_URL;
+// Support both Neon and Supabase databases - prioritize working database
+const databaseUrl = process.env.DATABASE_URL || process.env.SUPABASE_DATABASE_URL;
 
 if (!databaseUrl) {
   throw new Error(
@@ -14,8 +14,9 @@ if (!databaseUrl) {
 
 // Configure WebSocket for serverless environments
 if (typeof globalThis !== 'undefined' && !globalThis.WebSocket) {
-  const { neonConfig } = await import('@neondatabase/serverless');
-  neonConfig.webSocketConstructor = ws;
+  import('@neondatabase/serverless').then(({ neonConfig }) => {
+    neonConfig.webSocketConstructor = ws;
+  });
 }
 
 export const pool = new Pool({ connectionString: databaseUrl });
