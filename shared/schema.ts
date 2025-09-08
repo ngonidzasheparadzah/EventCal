@@ -176,10 +176,15 @@ export const analytics = pgTable("analytics", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// User preferences for roommate matching (future feature)
+// User preferences and personal information
 export const userPreferences = pgTable("user_preferences", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull().references(() => users.id),
+  // Personal information fields (from onboarding)
+  description: text("description"), // About yourself description
+  hobbies: jsonb("hobbies").default([]), // Array of hobbies/interests
+  profession: varchar("profession"), // Professional title/job
+  // Existing fields for roommate matching (future feature)
   age: integer("age"),
   gender: varchar("gender"),
   occupation: varchar("occupation"),
