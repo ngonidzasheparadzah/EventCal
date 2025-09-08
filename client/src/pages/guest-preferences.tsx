@@ -145,26 +145,38 @@ export default function GuestPreferences() {
       hobbies: string[];
       occupation: string;
     }) => {
-      return await apiRequest(`/api/user/${state.userId}/preferences`, {
+      const response = await fetch(`/api/user/${state.userId}/preferences`, {
         method: 'POST',
         body: JSON.stringify(preferences),
         headers: {
           'Content-Type': 'application/json',
         },
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save preferences');
+      }
+      
+      return await response.json();
     },
   });
 
   // API mutation to update onboarding step
   const updateOnboardingStepMutation = useMutation({
     mutationFn: async (step: number) => {
-      return await apiRequest(`/api/user/${state.userId}/onboarding`, {
+      const response = await fetch(`/api/user/${state.userId}/onboarding`, {
         method: 'PATCH',
         body: JSON.stringify({ step }),
         headers: {
           'Content-Type': 'application/json',
         },
       });
+      
+      if (!response.ok) {
+        throw new Error('Failed to update onboarding step');
+      }
+      
+      return await response.json();
     },
   });
 
