@@ -167,7 +167,7 @@ export default function BrowsePage() {
                   {/* Property Image */}
                   <div className="relative aspect-square rounded-2xl overflow-hidden mb-3">
                     <img
-                      src={listing.images[0] || "/placeholder-room.jpg"}
+                      src={listing.images[0] || "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400&h=300&fit=crop&crop=center"}
                       alt={listing.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                     />
