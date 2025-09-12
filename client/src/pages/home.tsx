@@ -13,6 +13,7 @@ import EmailVerificationBanner from "@/components/email-verification-banner";
 import { PhoneVerificationBanner } from "@/components/phone-verification-banner";
 import PropertyCard from "@/components/property/property-card";
 import { SearchFilters, Listing } from "@/types";
+import type { Listing as SchemaListing } from "@shared/schema";
 import { Search, MapPin } from "lucide-react";
 
 const ZIMBABWE_CITIES = [
@@ -32,12 +33,12 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({});
 
-  const { data: listings = [], isLoading } = useQuery({
+  const { data: listings = [], isLoading } = useQuery<SchemaListing[]>({
     queryKey: ["/api/listings"],
     retry: false,
   });
 
-  const { data: services = [] } = useQuery({
+  const { data: services = [] } = useQuery<any[]>({
     queryKey: ["/api/services"],
     retry: false,
   });
@@ -54,10 +55,10 @@ export default function Home() {
 
   const featuredListings = listings.slice(0, 8);
   const propertyTypeStats = [
-    { id: "boarding_house", name: "Boarding Houses", count: listings.filter((l: Listing) => l.propertyType === 'boarding_house').length },
-    { id: "private_room", name: "Private Rooms", count: listings.filter((l: Listing) => l.propertyType === 'private_room').length },
-    { id: "lodge", name: "Lodges", count: listings.filter((l: Listing) => l.propertyType === 'lodge').length },
-    { id: "hotel", name: "Hotels", count: listings.filter((l: Listing) => l.propertyType === 'hotel').length }
+    { id: "boarding_house", name: "Boarding Houses", count: listings.filter((l: SchemaListing) => l.propertyType === 'boarding_house').length },
+    { id: "private_room", name: "Private Rooms", count: listings.filter((l: SchemaListing) => l.propertyType === 'private_room').length },
+    { id: "lodge", name: "Lodges", count: listings.filter((l: SchemaListing) => l.propertyType === 'lodge').length },
+    { id: "hotel", name: "Hotels", count: listings.filter((l: SchemaListing) => l.propertyType === 'hotel').length }
   ];
 
   return (
@@ -196,7 +197,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="responsive-grid">
-              {featuredListings.map((listing: Listing) => (
+              {featuredListings.map((listing: SchemaListing) => (
                 <PropertyCard 
                   key={listing.id} 
                   listing={listing} 

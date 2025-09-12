@@ -367,6 +367,9 @@ export const createGuestUserSchema = createInsertSchema(users).pick({
   role: true,
   signupMethod: true,
   onboardingStep: true,
+  phoneNumber: true,
+  city: true,
+  address: true,
 });
 
 export const upsertUserSchema = createInsertSchema(users).pick({

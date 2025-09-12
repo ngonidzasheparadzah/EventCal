@@ -8,12 +8,12 @@ export interface Listing {
   currency: string;
   location: string;
   city: string;
-  address?: string;
-  latitude?: string;
-  longitude?: string;
+  address?: string | null;
+  latitude?: string | null;
+  longitude?: string | null;
   maxGuests: number;
-  bedrooms?: number;
-  bathrooms?: number;
+  bedrooms?: number | null;
+  bathrooms?: number | null;
   amenities: string[];
   images: string[];
   isActive: boolean;
