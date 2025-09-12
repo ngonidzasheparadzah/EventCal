@@ -253,8 +253,8 @@ export default function GuestPreferences() {
       if (data.success) {
         console.log('Account created successfully! Redirecting to dashboard...');
         
-        // Navigate to guest dashboard/homepage
-        setLocation('/');
+        // Navigate to browse page (same as "Not Now" button)
+        setLocation('/browse');
       } else {
         throw new Error(data.message || 'Failed to create account');
       }
