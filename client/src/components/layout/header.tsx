@@ -10,11 +10,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import AuthModal from "@/components/auth/auth-modal";
 
 export default function Header() {
   const [, setLocation] = useLocation();
-  const { user, isAuthenticated } = useAuth();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, isAuthenticated, logoutMutation } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 glass-effect border-b border-border app-nav">
@@ -109,7 +110,13 @@ export default function Header() {
                     <DropdownMenuItem onClick={() => setLocation('/help')}>
                       Help
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => window.location.href = '/api/logout'}>
+                    <DropdownMenuItem onClick={() => {
+                      logoutMutation.mutate(undefined, {
+                        onSuccess: () => {
+                          setLocation('/');
+                        }
+                      });
+                    }}>
                       Log out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -119,7 +126,7 @@ export default function Header() {
               <Button 
                 variant="ghost"
                 className="flex items-center space-x-3 p-2 border border-border rounded-full hover:shadow-md transition-shadow"
-                onClick={() => window.location.href = '/api/login'}
+                onClick={() => setShowAuthModal(true)}
                 data-testid="button-login"
               >
                 <Menu className="w-5 h-5 text-muted-foreground" />
@@ -128,6 +135,10 @@ export default function Header() {
                 </div>
               </Button>
             )}
+            <AuthModal 
+              isOpen={showAuthModal}
+              onClose={() => setShowAuthModal(false)}
+            />
           </div>
         </div>
       </div>

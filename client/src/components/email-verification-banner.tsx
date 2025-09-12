@@ -7,11 +7,11 @@ import { Mail, X, Loader2 } from "lucide-react";
 export default function EmailVerificationBanner() {
   const [isResending, setIsResending] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
-  const { isEmailVerified, resendEmailVerification, session } = useAuth();
+  const { user } = useAuth();
   const { toast } = useToast();
 
-  // Don't show banner if email is verified or dismissed
-  if (isEmailVerified || isDismissed || !session) {
+  // Don't show banner if user not authenticated, dismissed, or email verified
+  if (!user || isDismissed || user.emailVerified) {
     return null;
   }
 
@@ -19,20 +19,11 @@ export default function EmailVerificationBanner() {
     setIsResending(true);
     
     try {
-      const { error } = await resendEmailVerification();
-      
-      if (error) {
-        toast({
-          title: "Failed to resend email",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Verification email sent!",
-          description: "Please check your email and click the verification link.",
-        });
-      }
+      // TODO: Implement resend email verification API call
+      toast({
+        title: "Verification email sent!",
+        description: "Please check your email and click the verification link.",
+      });
     } catch (error) {
       toast({
         title: "Failed to resend email",

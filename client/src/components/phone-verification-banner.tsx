@@ -7,12 +7,12 @@ import { Phone, PhoneCall, X, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
 
 export function PhoneVerificationBanner() {
-  const { isPhoneVerified, user } = useAuth();
+  const { user } = useAuth();
   const [isDismissed, setIsDismissed] = useState(false);
   const [, setLocation] = useLocation();
 
-  // Don't show banner if phone is verified, user doesn't exist, or banner is dismissed
-  if (isPhoneVerified || !user || isDismissed) {
+  // Don't show banner if user doesn't exist, phone is verified, or banner is dismissed
+  if (!user || user.phoneVerified || isDismissed) {
     return null;
   }
 

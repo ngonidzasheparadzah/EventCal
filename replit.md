@@ -50,6 +50,31 @@ Implemented with a secure local authentication system:
 - **Security**: Secure session cookies (`httpOnly`, `sameSite`).
 - **Frontend Integration**: React context for authentication state management.
 
+# Recent Changes
+
+## Authentication Flow Fixes (September 12, 2025)
+
+### Profile Button Behavior
+- **Guest Users**: Clicking the profile button now opens an AuthModal for inline sign-in/sign-up instead of navigating to the auth page
+- **Authenticated Users**: Clicking the profile button opens a dropdown menu with profile options
+- **Logout**: Now uses proper `logoutMutation.mutate()` instead of window.location redirect
+
+### Post-Authentication Redirects
+- **After Successful Login**: Users are automatically redirected to the guest dashboard (`/` route)
+- **After Successful Registration**: Users are automatically redirected to the guest dashboard (`/` route)
+- **Guest Dashboard**: The `/` route renders the `Home` component for authenticated users, serving as their personalized dashboard
+
+### Authenticated User Experience
+- **No Signup Prompts**: Authenticated users no longer see inappropriate signup prompts
+- **Full Access**: Authenticated users have access to all features without being re-prompted to sign up
+- **Verification Banners**: Email and phone verification banners only show for authenticated users who need to complete verification (appropriate behavior)
+
+### Technical Implementation Details
+- Profile button uses `AuthModal` component for guest authentication
+- Authentication redirects handled via `useLocation` hook from wouter router
+- Logout handled via TanStack Query mutation with proper cache invalidation
+- Verification banners updated to use correct user fields (`user.emailVerified`, `user.phoneVerified`)
+
 # External Dependencies
 
 - **Replit Database**: Native PostgreSQL hosting.
