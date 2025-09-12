@@ -331,7 +331,7 @@ export default function GuestPreferences() {
             className="w-full py-3 rounded-full text-white font-medium transition-all duration-200 bg-blue-500 hover:bg-blue-600 active:scale-95"
             data-testid="button-continue-browse"
           >
-            Continue to Browse
+            Complete Sign Up
           </button>
           <p className="text-xs text-gray-500 text-center mt-2">
             All preferences are optional and can be updated later
