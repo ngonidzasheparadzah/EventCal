@@ -11,6 +11,7 @@ import PropertyCard from "@/components/property/property-card";
 import SearchWidget from "@/components/search/search-widget";
 import FilterModal from "@/components/search/filter-modal";
 import { SearchFilters, Listing } from "@/types";
+import type { Listing as SchemaListing } from "@shared/schema";
 import { Filter, MapPin, SlidersHorizontal } from "lucide-react";
 
 export default function SearchResults() {
@@ -50,7 +51,7 @@ export default function SearchResults() {
     return params.toString();
   };
 
-  const { data: listings = [], isLoading } = useQuery({
+  const { data: listings = [], isLoading } = useQuery<SchemaListing[]>({
     queryKey: ["/api/listings/search", buildQueryParams()],
     retry: false,
   });
