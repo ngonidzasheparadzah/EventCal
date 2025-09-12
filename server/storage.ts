@@ -127,7 +127,15 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   // User operations (supports both local signup and Supabase Auth)
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
+    const [user] = await db.select({
+      id: users.id,
+      email: users.email,
+      onboardingStep: users.onboardingStep,
+      passwordHash: users.passwordHash,
+      role: users.role,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt
+    }).from(users).where(eq(users.id, id));
     return user;
   }
 
@@ -145,29 +153,33 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByAuthId(authId: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.authId, authId));
+    const [user] = await db.select({
+      id: users.id,
+      email: users.email,
+      onboardingStep: users.onboardingStep,
+      passwordHash: users.passwordHash,
+      role: users.role,
+      createdAt: users.createdAt,
+      updatedAt: users.updatedAt
+    }).from(users).where(eq(users.authId, authId));
     return user;
   }
 
   async createGuestUser(userData: CreateGuestUser, passwordHash: string): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values({
-        email: userData.email,
-        passwordHash,
-        signupMethod: userData.signupMethod || 'local',
-        onboardingStep: userData.onboardingStep ?? 1,
-        role: userData.role || 'guest',
-      })
-      .returning({
-        id: users.id,
-        email: users.email,
-        onboardingStep: users.onboardingStep,
-        passwordHash: users.passwordHash,
-        role: users.role,
-        createdAt: users.createdAt,
-        updatedAt: users.updatedAt
-      });
+    const result = await db.execute(sql`
+      INSERT INTO users (email, password_hash, signup_method, onboarding_step, role)
+      VALUES (${userData.email}, ${passwordHash}, ${userData.signupMethod || 'local'}, ${userData.onboardingStep ?? 1}, ${userData.role || 'guest'})
+      RETURNING 
+        id, 
+        email, 
+        onboarding_step as "onboardingStep", 
+        password_hash as "passwordHash", 
+        role, 
+        created_at as "createdAt", 
+        updated_at as "updatedAt"
+    `);
+    
+    const user = result.rows[0] as User;
     return user;
   }
 

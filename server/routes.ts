@@ -227,7 +227,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Complete account created:', newUser.id);
       
       // Return user without sensitive data
-      const { passwordHash: _, ...userResponse } = newUser;
+      const { passwordHash: _, password_hash: __, ...userResponse } = newUser;
       
       res.json({
         success: true,
