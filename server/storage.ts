@@ -601,6 +601,22 @@ export class DatabaseStorage implements IStorage {
     return items.map(item => item.listingId);
   }
 
+  async getWishlistWithDetails(userId: string): Promise<(Listing & { savedAt: Date })[]> {
+    const wishlistItems = await db.select({
+      listing: listings,
+      savedAt: wishlist.createdAt
+    })
+      .from(wishlist)
+      .innerJoin(listings, eq(wishlist.listingId, listings.id))
+      .where(eq(wishlist.userId, userId))
+      .orderBy(desc(wishlist.createdAt)); // Most recently saved first
+    
+    return wishlistItems.map(item => ({
+      ...item.listing,
+      savedAt: item.savedAt || new Date()
+    }));
+  }
+
   // Report operations
   async createReport(report: any): Promise<void> {
     await db.insert(reports).values(report);

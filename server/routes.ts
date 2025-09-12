@@ -572,11 +572,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/wishlist', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const wishlistIds = await storage.getWishlist(userId);
-      res.json(wishlistIds);
+      const wishlistWithDetails = await storage.getWishlistWithDetails(userId);
+      res.json(wishlistWithDetails);
     } catch (error) {
       console.error("Error fetching wishlist:", error);
       res.status(500).json({ message: "Failed to fetch wishlist" });
+    }
+  });
+
+  // Get wishlist IDs only (for checking if listing is saved)
+  app.get('/api/wishlist/ids', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const wishlistIds = await storage.getWishlist(userId);
+      res.json(wishlistIds);
+    } catch (error) {
+      console.error("Error fetching wishlist ids:", error);
+      res.status(500).json({ message: "Failed to fetch wishlist ids" });
     }
   });
 
