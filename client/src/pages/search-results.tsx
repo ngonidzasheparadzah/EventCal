@@ -1,105 +1,227 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import MobileNav from "@/components/layout/mobile-nav";
-import PropertyCard from "@/components/property/property-card";
 import SearchWidget from "@/components/search/search-widget";
-import FilterModal from "@/components/search/filter-modal";
 import { SearchFilters } from "@/types";
 import type { Listing } from "@shared/schema";
-import { Filter, MapPin, SlidersHorizontal } from "lucide-react";
+import { Heart, Star, ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function SearchResults() {
-  const [location, setLocation] = useLocation();
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState<SearchFilters>({});
+// Property Card Component
+interface PropertyCardProps {
+  listing: Listing;
+  onClick: () => void;
+}
 
-  // Parse URL parameters on mount
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const initialFilters: SearchFilters = {};
-    
-    if (params.get('city')) initialFilters.city = params.get('city')!;
-    if (params.get('propertyType')) {
-      const types = params.get('propertyType')!.split(',');
-      initialFilters.propertyType = types;
-    }
-    if (params.get('minPrice')) initialFilters.minPrice = parseFloat(params.get('minPrice')!);
-    if (params.get('maxPrice')) initialFilters.maxPrice = parseFloat(params.get('maxPrice')!);
-    if (params.get('maxGuests')) initialFilters.maxGuests = parseInt(params.get('maxGuests')!);
-    if (params.get('checkIn')) initialFilters.checkIn = params.get('checkIn')!;
-    if (params.get('checkOut')) initialFilters.checkOut = params.get('checkOut')!;
-    
-    setFilters(initialFilters);
-  }, []);
-
-  // Build query parameters for API call
-  const buildQueryParams = () => {
-    const params = new URLSearchParams();
-    if (filters.city) params.set('city', filters.city);
-    if (filters.propertyType && filters.propertyType.length > 0) {
-      params.set('propertyType', filters.propertyType.join(','));
-    }
-    if (filters.minPrice) params.set('minPrice', filters.minPrice.toString());
-    if (filters.maxPrice) params.set('maxPrice', filters.maxPrice.toString());
-    if (filters.maxGuests) params.set('maxGuests', filters.maxGuests.toString());
-    return params.toString();
+function DashboardPropertyCard({ listing, onClick }: PropertyCardProps) {
+  const [isLiked, setIsLiked] = useState(false);
+  
+  const formatPrice = (price: number | string) => {
+    const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+    }).format(numPrice);
   };
 
+  const getPropertyTypeLabel = (type: string) => {
+    switch (type) {
+      case 'boarding_house': return 'Boarding House';
+      case 'lodge': return 'Lodge';
+      case 'hotel': return 'Hotel';
+      case 'apartment': return 'Apartment';
+      case 'guesthouse': return 'Guesthouse';
+      case 'private_room': return 'To Let';
+      default: return 'Property';
+    }
+  };
+
+  return (
+    <div 
+      className="min-w-[280px] cursor-pointer group"
+      onClick={onClick}
+      data-testid={`property-card-${listing.id}`}
+    >
+      <div className="relative">
+        {/* Property Image */}
+        <div className="relative h-[200px] rounded-xl overflow-hidden mb-3">
+          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-400 text-sm">No Image Available</span>
+          </div>
+          
+          {/* Property Type Badge */}
+          <div className="absolute top-3 left-3">
+            <span className="bg-white text-gray-700 text-xs font-medium px-2 py-1 rounded-md shadow-sm">
+              {getPropertyTypeLabel(listing.propertyType)}
+            </span>
+          </div>
+          
+          {/* Like Button */}
+          <button
+            className="absolute top-3 right-3 p-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsLiked(!isLiked);
+            }}
+            data-testid={`button-like-${listing.id}`}
+          >
+            <Heart 
+              className={`w-6 h-6 ${isLiked ? 'fill-red-500 text-red-500' : 'text-white fill-black/20'}`}
+            />
+          </button>
+        </div>
+        
+        {/* Property Details */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-gray-900 text-sm truncate" data-testid={`text-title-${listing.id}`}>
+              {listing.title}
+            </h3>
+            <div className="flex items-center space-x-1 ml-2">
+              <Star className="w-3 h-3 fill-current text-gray-900" />
+              <span className="text-xs font-medium text-gray-900">
+                4.5
+              </span>
+            </div>
+          </div>
+          
+          <p className="text-gray-600 text-xs">
+            {listing.city && `${listing.city}, `}Zimbabwe
+          </p>
+          
+          <div className="flex items-baseline space-x-1">
+            <span className="font-semibold text-gray-900" data-testid={`text-price-${listing.id}`}>
+              {formatPrice(listing.pricePerNight)}
+            </span>
+            <span className="text-gray-600 text-xs">night</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Horizontal Scrolling Section Component
+interface PropertySectionProps {
+  title: string;
+  properties: Listing[];
+  onPropertyClick: (id: string) => void;
+  isLoading?: boolean;
+}
+
+function PropertySection({ title, properties, onPropertyClick, isLoading }: PropertySectionProps) {
+  const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(null);
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollContainer) {
+      const scrollAmount = 300;
+      scrollContainer.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="mb-12">
+        <h2 className="text-xl font-semibold text-gray-900 mb-6">{title}</h2>
+        <div className="flex space-x-4 overflow-x-auto scrollbar-hide">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="min-w-[280px] animate-pulse">
+              <div className="h-[200px] bg-gray-200 rounded-xl mb-3"></div>
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (properties.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="mb-12">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => scroll('left')}
+            className="p-2 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors"
+            data-testid={`button-scroll-left-${title.replace(/\s+/g, '-').toLowerCase()}`}
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => scroll('right')}
+            className="p-2 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors"
+            data-testid={`button-scroll-right-${title.replace(/\s+/g, '-').toLowerCase()}`}
+          >
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+      
+      <div 
+        ref={setScrollContainer}
+        className="flex space-x-4 overflow-x-auto scrollbar-hide pb-2"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {properties.map((property) => (
+          <DashboardPropertyCard
+            key={property.id}
+            listing={property}
+            onClick={() => onPropertyClick(property.id)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function SearchResults() {
+  const [, setLocation] = useLocation();
+  const [filters, setFilters] = useState<SearchFilters>({});
+
   const { data: listings = [], isLoading } = useQuery<Listing[]>({
-    queryKey: [`/api/listings/search?${buildQueryParams()}`],
+    queryKey: ['/api/listings/search'],
     retry: false,
   });
 
   const handleSearch = (newFilters: SearchFilters) => {
     setFilters(newFilters);
-    
-    // Update URL
-    const params = new URLSearchParams();
-    if (newFilters.city) params.set('city', newFilters.city);
-    if (newFilters.propertyType && newFilters.propertyType.length > 0) {
-      params.set('propertyType', newFilters.propertyType.join(','));
-    }
-    if (newFilters.minPrice) params.set('minPrice', newFilters.minPrice.toString());
-    if (newFilters.maxPrice) params.set('maxPrice', newFilters.maxPrice.toString());
-    if (newFilters.maxGuests) params.set('maxGuests', newFilters.maxGuests.toString());
-    if (newFilters.checkIn) params.set('checkIn', newFilters.checkIn);
-    if (newFilters.checkOut) params.set('checkOut', newFilters.checkOut);
-    
-    setLocation(`/search?${params.toString()}`);
+    // For now, keep search simple - we can enhance this later
   };
 
-  const handleApplyFilters = (newFilters: SearchFilters) => {
-    handleSearch(newFilters);
+  const handlePropertyClick = (propertyId: string) => {
+    setLocation(`/property/${propertyId}`);
   };
 
-  const clearFilters = () => {
-    const basicFilters = {
-      city: filters.city,
-      checkIn: filters.checkIn,
-      checkOut: filters.checkOut,
-      maxGuests: filters.maxGuests
-    };
-    setFilters(basicFilters);
-    setLocation('/search');
-  };
+  // Categorize properties
+  const topPicks = listings
+    .slice()
+    .sort(() => Math.random() - 0.5) // Random for demo
+    .slice(0, 8);
 
-  const activeFilterCount = () => {
-    let count = 0;
-    if (filters.propertyType && filters.propertyType.length > 0) count++;
-    if (filters.minPrice) count++;
-    if (filters.maxPrice) count++;
-    if (filters.amenities && filters.amenities.length > 0) count++;
-    return count;
-  };
+  const recommended = listings
+    .filter(listing => listing.propertyType === 'boarding_house' || listing.propertyType === 'private_room')
+    .slice(0, 8);
+
+  const featured = listings
+    .filter(listing => listing.propertyType === 'hotel' || listing.propertyType === 'lodge')
+    .slice(0, 8);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-white">
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -107,134 +229,64 @@ export default function SearchResults() {
         <SearchWidget 
           onSearch={handleSearch}
           initialFilters={filters}
-          className="mb-8"
+          className="mb-12"
         />
 
-        {/* Results Header */}
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground mb-2">
-              {filters.city ? `Stays in ${filters.city}` : 'Search Results'}
-            </h1>
-            <p className="text-muted-foreground">
-              {isLoading ? 'Searching...' : `${listings.length} properties found`}
-            </p>
-          </div>
-          
-          <div className="flex space-x-2">
-            <Button 
-              variant="outline"
-              onClick={() => setShowFilters(true)}
-              data-testid="button-show-filters"
-            >
-              <SlidersHorizontal className="w-4 h-4 mr-2" />
-              Filters
-              {activeFilterCount() > 0 && (
-                <Badge variant="destructive" className="ml-2 text-xs">
-                  {activeFilterCount()}
-                </Badge>
-              )}
-            </Button>
-            
-            {activeFilterCount() > 0 && (
-              <Button 
-                variant="ghost"
-                onClick={clearFilters}
-                data-testid="button-clear-filters"
-              >
-                Clear filters
-              </Button>
-            )}
-          </div>
+        {/* Welcome Message */}
+        <div className="mb-12">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Welcome to RooMe
+          </h1>
+          <p className="text-gray-600">
+            Discover amazing places to stay across Zimbabwe
+          </p>
         </div>
 
-        {/* Active Filters */}
-        {(filters.propertyType?.length || filters.minPrice || filters.maxPrice) && (
-          <div className="flex flex-wrap gap-2 mb-6">
-            {filters.propertyType?.map(type => (
-              <Badge key={type} variant="secondary" className="text-xs">
-                {type.replace('_', ' ')}
-              </Badge>
-            ))}
-            {filters.minPrice && (
-              <Badge variant="secondary" className="text-xs">
-                Min: ${filters.minPrice}
-              </Badge>
-            )}
-            {filters.maxPrice && (
-              <Badge variant="secondary" className="text-xs">
-                Max: ${filters.maxPrice}
-              </Badge>
-            )}
-          </div>
+        {/* Property Sections */}
+        <PropertySection
+          title="Top Picks"
+          properties={topPicks}
+          onPropertyClick={handlePropertyClick}
+          isLoading={isLoading}
+        />
+
+        <PropertySection
+          title="Recommended for You"
+          properties={recommended}
+          onPropertyClick={handlePropertyClick}
+          isLoading={isLoading}
+        />
+
+        <PropertySection
+          title="Featured Properties"
+          properties={featured}
+          onPropertyClick={handlePropertyClick}
+          isLoading={isLoading}
+        />
+
+        {/* Show all properties when no specific filters are applied */}
+        {!isLoading && listings.length > 0 && (
+          <PropertySection
+            title="All Properties"
+            properties={listings}
+            onPropertyClick={handlePropertyClick}
+            isLoading={isLoading}
+          />
         )}
 
-        {/* Results Grid */}
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <Card key={i} className="animate-pulse">
-                <div className="h-48 bg-muted rounded-t-lg"></div>
-                <CardContent className="p-4">
-                  <div className="h-4 bg-muted rounded mb-2"></div>
-                  <div className="h-4 bg-muted rounded mb-4"></div>
-                  <div className="h-6 bg-muted rounded"></div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : listings.length === 0 ? (
-          <Card className="p-8 text-center">
-            <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">No properties found</h3>
-            <p className="text-muted-foreground mb-4">
-              Try adjusting your search criteria or removing some filters
+        {/* Empty state when no properties */}
+        {!isLoading && listings.length === 0 && (
+          <div className="text-center py-16">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">
+              No properties available yet
+            </h3>
+            <p className="text-gray-600 max-w-md mx-auto">
+              We're working hard to bring you amazing accommodations across Zimbabwe. 
+              Check back soon for new listings!
             </p>
-            <div className="flex justify-center space-x-4">
-              <Button 
-                variant="outline"
-                onClick={() => handleSearch({})}
-                data-testid="button-view-all"
-              >
-                View all properties
-              </Button>
-              <Button 
-                onClick={() => setShowFilters(true)}
-                data-testid="button-adjust-filters"
-              >
-                Adjust filters
-              </Button>
-            </div>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {listings.map((listing) => (
-              <PropertyCard 
-                key={listing.id} 
-                listing={listing}
-                onClick={() => setLocation(`/property/${listing.id}`)}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Load More Button */}
-        {listings.length > 0 && listings.length % 12 === 0 && (
-          <div className="text-center mt-8">
-            <Button variant="outline" size="lg">
-              Load More Properties
-            </Button>
           </div>
         )}
       </div>
-
-      {/* Filter Modal */}
-      <FilterModal
-        isOpen={showFilters}
-        onClose={() => setShowFilters(false)}
-        filters={filters}
-        onApplyFilters={handleApplyFilters}
-      />
 
       <Footer />
       <MobileNav />
