@@ -15,6 +15,7 @@ import {
   type CreateGuestUser,
 } from "@shared/schema";
 import { z } from "zod";
+import { db, sql } from './db';
 
 // Guest signup schema with validation
 const guestSignupSchema = z.object({
@@ -54,7 +55,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/debug/db-info', async (req, res) => {
     try {
       const dbUrl = process.env.DATABASE_URL ? process.env.DATABASE_URL.replace(/:[^:]*@/, ':***@') : 'undefined';
-      const { db, sql } = await import('./db');
       
       const currentDb = await db.execute(sql`SELECT current_database()`);
       const currentSchema = await db.execute(sql`SELECT current_schema()`);
@@ -70,7 +70,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error('Debug endpoint error:', error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 

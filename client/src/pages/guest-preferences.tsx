@@ -10,6 +10,7 @@ export default function GuestPreferences() {
   const { state, dispatch, validateStep } = useOnboarding();
   const [isNavigating, setIsNavigating] = useState(false);
   const [newHobby, setNewHobby] = useState('');
+  const [errors, setErrors] = useState<{ general?: string }>({});
 
   // Amenity options
   const amenityOptions = [
@@ -214,7 +215,9 @@ export default function GuestPreferences() {
       });
       
       if (!response.ok) {
-        throw new Error('Failed to create account');
+        // Get the actual error message from server
+        const errorData = await response.json();
+        throw new Error(errorData.message || errorData.error || 'Failed to create account');
       }
       
       const data = await response.json();
@@ -230,7 +233,23 @@ export default function GuestPreferences() {
       
     } catch (error) {
       console.error('Error completing signup:', error);
-      // Could add error state here to show user the error
+      
+      // Show error message to user
+      let errorMessage = 'Failed to create account. Please try again.';
+      
+      if (error instanceof Response) {
+        try {
+          const errorData = await error.json();
+          errorMessage = errorData.message || errorData.error || errorMessage;
+        } catch {
+          errorMessage = `Error ${error.status}: Please try again.`;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      // Set error state to show to user
+      setErrors({ general: errorMessage });
     } finally {
       setIsNavigating(false);
     }
@@ -417,6 +436,19 @@ export default function GuestPreferences() {
           </div>
         </div>
       </div>
+
+      {/* Error Display */}
+      {errors.general && (
+        <div className="p-4">
+          <div className="responsive-container max-w-sm">
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-600 text-sm" data-testid="text-error-message">
+                {errors.general}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Action Button */}
       <div className="p-4">
