@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, setupAuthRoutes, isAuthenticated } from "./supabaseAuth";
+import { setupAuth, isAuthenticated } from "./auth";
 import bcrypt from 'bcryptjs';
 import { 
   insertListingSchema, 
@@ -28,9 +28,8 @@ const guestSignupSchema = z.object({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
-  setupAuthRoutes(app);
+  // Auth middleware - using basic auth integration
+  setupAuth(app);
 
   // Email availability check (without creating account)
   app.post('/api/auth/check-email', async (req, res) => {

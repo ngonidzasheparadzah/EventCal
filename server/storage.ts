@@ -1,3 +1,4 @@
+// Referenced from javascript_auth_all_persistance and javascript_database integrations
 import {
   users,
   listings,
@@ -32,18 +33,30 @@ import {
   type ComponentUsage,
   type InsertComponentUsage,
 } from "@shared/schema";
-import { db } from "./db";
+import { db, pool } from "./db";
 import { eq, and, desc, asc, sql, ilike, gte, lte, inArray } from "drizzle-orm";
+import session from "express-session";
+import connectPg from "connect-pg-simple";
+
+// Referenced from javascript_auth_all_persistance integration
+const PostgresSessionStore = connectPg(session);
 
 // Interface for storage operations
 export interface IStorage {
-  // User operations (supports both local signup and Supabase Auth)
+  // Session store for authentication
+  sessionStore: session.SessionStore;
+  
+  // User operations (supports basic auth)
   getUser(id: string): Promise<User | undefined>;
+  getUserById(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  getUserByAuthId(authId: string): Promise<User | undefined>;
+  createUser(userData: { email: string; firstName: string; lastName: string; passwordHash: string; role: string; signupMethod: string; onboardingStep: number; isVerified: boolean; emailVerified: boolean; phoneVerified: boolean; }): Promise<User>;
   createGuestUser(userData: CreateGuestUser, passwordHash: string): Promise<User>;
   deleteUser(id: string): Promise<void>;
   updateUserOnboardingStep(userId: string, step: number): Promise<User>;
+  
+  // Legacy methods for existing compatibility
+  getUserByAuthId(authId: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   updateUserVerificationStatus(authId: string, type: 'email' | 'phone', verified: boolean): Promise<User>;
   updateUserSignInTime(authId: string): Promise<void>;
@@ -125,9 +138,29 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  // User operations (supports both local signup and Supabase Auth)
+  // Session store for authentication - referenced from javascript_auth_all_persistance integration
+  sessionStore: session.SessionStore;
+
+  constructor() {
+    this.sessionStore = new PostgresSessionStore({ pool, createTableIfMissing: true });
+  }
+
+  // User operations (supports basic auth)
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async getUserById(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async createUser(userData: { email: string; firstName: string; lastName: string; passwordHash: string; role: string; signupMethod: string; onboardingStep: number; isVerified: boolean; emailVerified: boolean; phoneVerified: boolean; }): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .returning();
     return user;
   }
 

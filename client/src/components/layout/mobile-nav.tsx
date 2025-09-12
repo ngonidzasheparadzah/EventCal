@@ -1,5 +1,5 @@
 import { useLocation } from "wouter";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/use-auth";
 import { Search, Heart, Calendar, MessageCircle, User } from "lucide-react";
 
 export default function MobileNav() {
