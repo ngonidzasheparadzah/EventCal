@@ -222,8 +222,8 @@ export default function GuestPreferences() {
       if (data.success) {
         console.log('Complete account created successfully:', data.user);
         
-        // Navigate to dashboard
-        setLocation('/dashboard');
+        // Navigate to authenticated home page
+        setLocation('/');
       } else {
         throw new Error(data.message || 'Failed to create account');
       }
