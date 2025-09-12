@@ -276,25 +276,27 @@ export class DatabaseStorage implements IStorage {
 
   // Listing operations
   async getListings(filters?: any): Promise<Listing[]> {
-    let query = db.select().from(listings).where(eq(listings.isActive, true));
+    const conditions = [eq(listings.isActive, true)];
     
     if (filters?.city) {
-      query = query.where(eq(listings.city, filters.city));
+      conditions.push(eq(listings.city, filters.city));
     }
     if (filters?.propertyType) {
-      query = query.where(eq(listings.propertyType, filters.propertyType));
+      conditions.push(eq(listings.propertyType, filters.propertyType));
     }
     if (filters?.minPrice) {
-      query = query.where(gte(listings.pricePerNight, filters.minPrice));
+      conditions.push(gte(listings.pricePerNight, filters.minPrice));
     }
     if (filters?.maxPrice) {
-      query = query.where(lte(listings.pricePerNight, filters.maxPrice));
+      conditions.push(lte(listings.pricePerNight, filters.maxPrice));
     }
     if (filters?.maxGuests) {
-      query = query.where(gte(listings.maxGuests, filters.maxGuests));
+      conditions.push(gte(listings.maxGuests, filters.maxGuests));
     }
     
-    return await query.orderBy(desc(listings.createdAt));
+    return await db.select().from(listings)
+      .where(and(...conditions))
+      .orderBy(desc(listings.createdAt));
   }
 
   async getListing(id: string): Promise<Listing | undefined> {
@@ -376,7 +378,7 @@ export class DatabaseStorage implements IStorage {
     
     // Group by conversation and get latest message
     const grouped = conversations.reduce((acc, conv) => {
-      if (!acc[conv.conversationId] || conv.lastMessageTime > acc[conv.conversationId].lastMessageTime) {
+      if (!acc[conv.conversationId] || (conv.lastMessageTime && (!acc[conv.conversationId].lastMessageTime || conv.lastMessageTime > acc[conv.conversationId].lastMessageTime))) {
         acc[conv.conversationId] = conv;
       }
       return acc;
@@ -426,7 +428,7 @@ export class DatabaseStorage implements IStorage {
       await db
         .update(listings)
         .set({
-          rating: result[0].avgRating,
+          rating: String(result[0].avgRating || '0'),
           reviewCount: Number(result[0].count),
         })
         .where(eq(listings.id, listingId));
@@ -478,32 +480,31 @@ export class DatabaseStorage implements IStorage {
 
   // Search operations
   async searchListings(query: string, filters?: any): Promise<Listing[]> {
-    let dbQuery = db.select().from(listings)
-      .where(and(
-        eq(listings.isActive, true),
-        sql`(${listings.title} ILIKE ${`%${query}%`} OR ${listings.description} ILIKE ${`%${query}%`} OR ${listings.location} ILIKE ${`%${query}%`})`
-      ));
+    const conditions = [
+      eq(listings.isActive, true),
+      sql`(${listings.title} ILIKE ${`%${query}%`} OR ${listings.description} ILIKE ${`%${query}%`} OR ${listings.location} ILIKE ${`%${query}%`})`
+    ];
 
     if (filters?.city) {
-      dbQuery = dbQuery.where(eq(listings.city, filters.city));
+      conditions.push(eq(listings.city, filters.city));
     }
     if (filters?.propertyType && filters.propertyType.length > 0) {
-      dbQuery = dbQuery.where(inArray(listings.propertyType, filters.propertyType));
+      conditions.push(inArray(listings.propertyType, filters.propertyType));
     }
     if (filters?.minPrice) {
-      dbQuery = dbQuery.where(gte(listings.pricePerNight, filters.minPrice));
+      conditions.push(gte(listings.pricePerNight, filters.minPrice));
     }
     if (filters?.maxPrice) {
-      dbQuery = dbQuery.where(lte(listings.pricePerNight, filters.maxPrice));
+      conditions.push(lte(listings.pricePerNight, filters.maxPrice));
     }
 
-    return await dbQuery.orderBy(desc(listings.rating), desc(listings.createdAt));
+    return await db.select().from(listings)
+      .where(and(...conditions))
+      .orderBy(desc(listings.rating), desc(listings.createdAt));
   }
 
   // UI Components operations
   async getUIComponents(filters?: { category?: string; isActive?: boolean; isPublic?: boolean }): Promise<UiComponent[]> {
-    let query = db.select().from(uiComponents);
-    
     const conditions = [];
     if (filters?.category) {
       conditions.push(eq(uiComponents.category, filters.category));
@@ -515,8 +516,9 @@ export class DatabaseStorage implements IStorage {
       conditions.push(eq(uiComponents.isPublic, filters.isPublic));
     }
     
+    const query = db.select().from(uiComponents);
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      return await query.where(and(...conditions)).orderBy(desc(uiComponents.createdAt));
     }
     
     return await query.orderBy(desc(uiComponents.createdAt));
