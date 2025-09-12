@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Heart, Star, ChevronRight } from "lucide-react";
+import { Heart, Star, ChevronRight, Search } from "lucide-react";
 import type { Listing } from "@shared/schema";
 
 // Property Card Component
@@ -162,6 +162,7 @@ function PropertySection({ title, properties, onPropertyClick, isLoading }: Prop
 
 export default function SearchResults() {
   const [, setLocation] = useLocation();
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: listings = [], isLoading } = useQuery<Listing[]>({
     queryKey: ['/api/listings/search'],
@@ -170,6 +171,12 @@ export default function SearchResults() {
 
   const handlePropertyClick = (propertyId: string) => {
     setLocation(`/property/${propertyId}`);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Handle search functionality here
+    console.log('Searching for:', searchQuery);
   };
 
   // Categorize properties for different sections
@@ -185,6 +192,22 @@ export default function SearchResults() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Search Bar */}
+        <div className="mb-12">
+          <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search for places to stay..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 text-[#2C2C2C] bg-white rounded-full border border-gray-200 shadow-sm focus:outline-none focus:ring-2 focus:ring-[#0390D7] focus:border-transparent transition-all duration-200 placeholder-gray-500"
+                data-testid="search-input"
+              />
+            </div>
+          </form>
+        </div>
         {/* Popular Homes Section */}
         <PropertySection
           title="Popular homes in Harare"
