@@ -182,7 +182,7 @@ export const analytics = pgTable("analytics", {
 // User preferences and personal information
 export const userPreferences = pgTable("user_preferences", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").notNull().unique().references(() => users.id),
   // Accommodation preference fields (from onboarding)
   preferredAmenities: jsonb("preferred_amenities").default([]), // Array of preferred amenities
   accommodationLookingFor: text("accommodation_looking_for"), // What they look for in accommodation
