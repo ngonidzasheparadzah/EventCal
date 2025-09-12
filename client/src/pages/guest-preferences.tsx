@@ -184,45 +184,76 @@ export default function GuestPreferences() {
     setIsNavigating(true);
     
     try {
-      // Create complete account with all collected data
-      const completeAccountData = {
-        // Stage 1 data
+      // Prepare basic account data (required fields)
+      const accountData: any = {
         fullName: state.step1.fullName,
         email: state.step1.email,
         password: state.step1.password,
-        // Stage 2 data
-        phoneNumber: state.step2.phoneNumber,
-        city: state.step2.city,
-        address: state.step2.address,
-        // Stage 3 data
-        preferences: {
-          preferredAmenities: state.step3.preferredAmenities || [],
-          accommodationLookingFor: state.step3.accommodationLookingFor || '',
-          roommatePreferences: state.step3.roommatePreferences || [],
-          hobbies: state.step3.hobbies || [],
-          occupation: state.step3.occupation || '',
-        }
       };
+
+      // Add optional contact info only if provided
+      if (state.step2.phoneNumber?.trim()) {
+        accountData.phoneNumber = state.step2.phoneNumber.trim();
+      }
+      if (state.step2.city?.trim()) {
+        accountData.city = state.step2.city.trim();
+      }
+      if (state.step2.address?.trim()) {
+        accountData.address = state.step2.address.trim();
+      }
+
+      // Add preferences only if any are actually filled
+      const hasPreferences = 
+        (state.step3.preferredAmenities && state.step3.preferredAmenities.length > 0) ||
+        (state.step3.accommodationLookingFor && state.step3.accommodationLookingFor.trim()) ||
+        (state.step3.roommatePreferences && state.step3.roommatePreferences.length > 0) ||
+        (state.step3.hobbies && state.step3.hobbies.length > 0) ||
+        (state.step3.occupation && state.step3.occupation.trim());
+
+      if (hasPreferences) {
+        accountData.preferences = {};
+        
+        if (state.step3.preferredAmenities && state.step3.preferredAmenities.length > 0) {
+          accountData.preferences.preferredAmenities = state.step3.preferredAmenities;
+        }
+        if (state.step3.accommodationLookingFor && state.step3.accommodationLookingFor.trim()) {
+          accountData.preferences.accommodationLookingFor = state.step3.accommodationLookingFor.trim();
+        }
+        if (state.step3.roommatePreferences && state.step3.roommatePreferences.length > 0) {
+          accountData.preferences.roommatePreferences = state.step3.roommatePreferences;
+        }
+        if (state.step3.hobbies && state.step3.hobbies.length > 0) {
+          accountData.preferences.hobbies = state.step3.hobbies;
+        }
+        if (state.step3.occupation && state.step3.occupation.trim()) {
+          accountData.preferences.occupation = state.step3.occupation.trim();
+        }
+      }
+
+      // Log account creation (excluding sensitive data)
+      const { password: _, ...safeAccountData } = accountData;
+      console.log('Creating account with data:', safeAccountData);
 
       // Create complete account
       const response = await fetch('/api/auth/complete-signup', {
         method: 'POST',
-        body: JSON.stringify(completeAccountData),
+        body: JSON.stringify(accountData),
         headers: {
           'Content-Type': 'application/json',
         },
       });
       
       if (!response.ok) {
-        throw new Error('Failed to create account');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create account');
       }
       
       const data = await response.json();
       
       if (data.success) {
-        console.log('Complete account created successfully:', data.user);
+        console.log('Account created successfully! Redirecting to dashboard...');
         
-        // Navigate to authenticated home page
+        // Navigate to guest dashboard/homepage
         setLocation('/');
       } else {
         throw new Error(data.message || 'Failed to create account');
@@ -230,7 +261,7 @@ export default function GuestPreferences() {
       
     } catch (error) {
       console.error('Error completing signup:', error);
-      // Could add error state here to show user the error
+      // You could show a toast or error message here
     } finally {
       setIsNavigating(false);
     }

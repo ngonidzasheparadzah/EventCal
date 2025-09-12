@@ -55,7 +55,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
 
-  // Complete signup endpoint (creates account with all data from all stages)
+  // Complete signup endpoint (creates account with optional preferences)
   app.post('/api/auth/complete-signup', async (req, res) => {
     try {
       const validationResult = completeSignupSchema.safeParse(req.body);
@@ -67,6 +67,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       const { fullName, email, password, phoneNumber, city, address, preferences } = validationResult.data;
+      
+      console.log('Processing signup for email:', email);
       
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(email);
@@ -84,49 +86,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const [firstName, ...lastNameParts] = fullName.trim().split(' ');
       const lastName = lastNameParts.join(' ') || '';
       
-      // Create user data
+      // Create user data - only include provided optional fields
       const userData: CreateGuestUser = {
         email,
         firstName,
         lastName,
         role: 'guest',
         signupMethod: 'local',
-        onboardingStep: 4, // Completed
+        onboardingStep: 4, // Completed onboarding
         phoneNumber: phoneNumber || null,
         city: city || null,
         address: address || null,
       };
       
-      // Create user in database
+      // Create user in database permanently
       const newUser = await storage.createGuestUser(userData, hashedPassword);
+      console.log('User account created successfully:', newUser.id);
       
-      // Create user preferences if provided
-      if (preferences && Object.keys(preferences).length > 0) {
-        await storage.createUserPreferences(newUser.id, {
-          preferredAmenities: preferences.preferredAmenities || [],
-          accommodationLookingFor: preferences.accommodationLookingFor || undefined,
-          roommatePreferences: preferences.roommatePreferences || [],
-          hobbies: preferences.hobbies || [],
-          occupation: preferences.occupation || undefined,
-        });
+      // Create user preferences only if any preferences were provided
+      let preferencesCreated = false;
+      if (preferences && typeof preferences === 'object') {
+        // Check if any preferences actually have values
+        const hasValidPreferences = 
+          (preferences.preferredAmenities && preferences.preferredAmenities.length > 0) ||
+          (preferences.accommodationLookingFor && preferences.accommodationLookingFor.trim().length > 0) ||
+          (preferences.roommatePreferences && preferences.roommatePreferences.length > 0) ||
+          (preferences.hobbies && preferences.hobbies.length > 0) ||
+          (preferences.occupation && preferences.occupation.trim().length > 0);
+        
+        if (hasValidPreferences) {
+          await storage.createUserPreferences(newUser.id, {
+            preferredAmenities: preferences.preferredAmenities || [],
+            accommodationLookingFor: preferences.accommodationLookingFor?.trim() || undefined,
+            roommatePreferences: preferences.roommatePreferences || [],
+            hobbies: preferences.hobbies || [],
+            occupation: preferences.occupation?.trim() || undefined,
+          });
+          preferencesCreated = true;
+          console.log('User preferences created for user:', newUser.id);
+        }
       }
-      
-      console.log('Complete account created:', newUser.id);
       
       // Return user without sensitive data
       const { passwordHash: _, ...userResponse } = newUser;
       
+      console.log('Account creation completed for:', email, 'with preferences:', preferencesCreated);
+      
       res.json({
         success: true,
         user: userResponse,
-        message: "Account created successfully"
+        message: "Account created successfully and ready for use"
       });
       
     } catch (error) {
       console.error("Complete signup error:", error);
       res.status(500).json({
         error: "Internal server error",
-        message: "Failed to create account"
+        message: "Failed to create account. Please try again."
       });
     }
   });
