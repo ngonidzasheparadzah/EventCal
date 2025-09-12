@@ -367,9 +367,7 @@ export const createGuestUserSchema = createInsertSchema(users).pick({
   role: true,
   signupMethod: true,
   onboardingStep: true,
-  phoneNumber: true,
-  city: true,
-  address: true,
+  // Note: phoneNumber, city, address will be added via updateUserContact when database is synced
 });
 
 export const upsertUserSchema = createInsertSchema(users).pick({

@@ -135,13 +135,9 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db.select({
       id: users.id,
       email: users.email,
-      firstName: users.firstName,
-      lastName: users.lastName,
-      role: users.role,
       onboardingStep: users.onboardingStep,
       passwordHash: users.passwordHash,
-      isVerified: users.isVerified,
-      signupMethod: users.signupMethod,
+      role: users.role,
       createdAt: users.createdAt,
       updatedAt: users.updatedAt
     }).from(users).where(eq(users.email, email));
@@ -157,13 +153,21 @@ export class DatabaseStorage implements IStorage {
     const [user] = await db
       .insert(users)
       .values({
-        ...userData,
+        email: userData.email,
         passwordHash,
-        signupMethod: 'local',
-        onboardingStep: 1,
-        role: 'guest',
+        signupMethod: userData.signupMethod || 'local',
+        onboardingStep: userData.onboardingStep ?? 1,
+        role: userData.role || 'guest',
       })
-      .returning();
+      .returning({
+        id: users.id,
+        email: users.email,
+        onboardingStep: users.onboardingStep,
+        passwordHash: users.passwordHash,
+        role: users.role,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt
+      });
     return user;
   }
 

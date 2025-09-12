@@ -50,6 +50,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Debug endpoint for database schema info
+  app.get('/api/debug/db-info', async (req, res) => {
+    try {
+      const dbUrl = process.env.DATABASE_URL ? process.env.DATABASE_URL.replace(/:[^:]*@/, ':***@') : 'undefined';
+      const { db, sql } = await import('./db');
+      
+      const currentDb = await db.execute(sql`SELECT current_database()`);
+      const currentSchema = await db.execute(sql`SELECT current_schema()`);
+      const searchPath = await db.execute(sql`SHOW search_path`);
+      const userColumns = await db.execute(sql`SELECT column_name FROM information_schema.columns WHERE table_name='users' AND table_schema=current_schema() ORDER BY ordinal_position`);
+      
+      res.json({
+        DATABASE_URL: dbUrl,
+        current_database: currentDb.rows[0],
+        current_schema: currentSchema.rows[0],
+        search_path: searchPath.rows[0],
+        user_table_columns: userColumns.rows.map(row => row.column_name)
+      });
+    } catch (error) {
+      console.error('Debug endpoint error:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Auth middleware
   await setupAuth(app);
   setupAuthRoutes(app);
@@ -177,17 +201,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const [firstName, ...lastNameParts] = fullName.trim().split(' ');
       const lastName = lastNameParts.join(' ') || '';
       
-      // Create user data
+      // Create user data (only include fields that exist in database)
       const userData: CreateGuestUser = {
         email,
-        firstName,
-        lastName,
         role: 'guest',
         signupMethod: 'local',
         onboardingStep: 4, // Completed
-        phoneNumber: phoneNumber || null,
-        city: city || null,
-        address: address || null,
+        // Note: firstName, lastName, phoneNumber, city, address don't exist in database yet
       };
       
       // Create user in database
