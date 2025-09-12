@@ -161,9 +161,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Update onboarding step endpoint
-  app.patch('/api/user/:userId/onboarding', async (req, res) => {
+  // SECURITY FIX: Legacy onboarding endpoint now requires authentication
+  app.patch('/api/user/:userId/onboarding', isAuthenticated, async (req: any, res) => {
     try {
       const { userId } = req.params;
+      const requestingUserId = req.user.claims.sub;
+      
+      // Security check: users can only modify their own data
+      if (userId !== requestingUserId) {
+        return res.status(403).json({
+          error: "Forbidden",
+          message: "You can only modify your own onboarding data"
+        });
+      }
+      
       const { step } = req.body;
       
       if (!step || typeof step !== 'number') {
@@ -233,7 +244,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User contact routes  
-  app.patch('/api/user/:userId/contact', async (req, res) => {
+  // SECURITY FIX: Legacy contact endpoint now requires authentication
+  app.patch('/api/user/:userId/contact', isAuthenticated, async (req: any, res) => {
     try {
       const { userId } = req.params;
       const { phoneNumber, city, address } = req.body;
@@ -262,7 +274,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User preferences routes
-  app.post('/api/user/:userId/preferences', async (req, res) => {
+  // SECURITY FIX: Legacy preferences POST endpoint now requires authentication
+  app.post('/api/user/:userId/preferences', isAuthenticated, async (req: any, res) => {
     try {
       const { userId } = req.params;
       const preferences = req.body;
@@ -283,7 +296,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/user/:userId/preferences', async (req, res) => {
+  // SECURITY FIX: Legacy preferences GET endpoint now requires authentication
+  app.get('/api/user/:userId/preferences', isAuthenticated, async (req: any, res) => {
     try {
       const { userId } = req.params;
       
