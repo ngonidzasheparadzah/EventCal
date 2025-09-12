@@ -104,10 +104,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (preferences && Object.keys(preferences).length > 0) {
         await storage.createUserPreferences(newUser.id, {
           preferredAmenities: preferences.preferredAmenities || [],
-          accommodationLookingFor: preferences.accommodationLookingFor || null,
+          accommodationLookingFor: preferences.accommodationLookingFor || undefined,
           roommatePreferences: preferences.roommatePreferences || [],
           hobbies: preferences.hobbies || [],
-          occupation: preferences.occupation || null,
+          occupation: preferences.occupation || undefined,
         });
       }
       
