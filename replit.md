@@ -2,18 +2,19 @@
 
 RooMe Zimbabwe is a full-stack accommodation booking platform built specifically for Zimbabwe's hospitality market. The application enables users to search and book various types of accommodations including boarding houses, private rooms, lodges, hotels, apartments, and guesthouses. The platform features a dual-sided marketplace connecting property hosts with guests, offering comprehensive property management tools, booking systems, and communication features.
 
-## Recent Progress (January 2025)
+## Recent Progress (September 2025)
 
-### Database Migration to Supabase (September 2025)
+### Database Migration from Supabase to Replit (September 12, 2025)
 
-#### ✅ **Complete Supabase Integration**
-**Achievement**: Successfully migrated from Replit database to Supabase PostgreSQL with zero data loss
+#### ✅ **Complete Migration to Replit PostgreSQL Database**
+**Achievement**: Successfully migrated from Supabase to Replit's native PostgreSQL database with basic authentication implementation
 
 **Technical Implementation**:
-- **Connection**: Direct PostgreSQL driver connection replacing Neon serverless
-- **Schema Sync**: All 12 RooMe tables deployed and verified in Supabase
-- **Authentication**: Updated database configuration to use `SUPABASE_DATABASE_URL`
-- **Performance**: Eliminated 10 GiB storage limitation, gained enterprise-grade scaling
+- **Database Connection**: Migrated from Neon WebSocket serverless to standard PostgreSQL connection via `pg` driver
+- **Authentication System**: Implemented complete basic username/password authentication using passport.js LocalStrategy
+- **Schema Preservation**: All 12 RooMe tables maintained with existing data structure
+- **Security Enhancement**: Implemented session-based authentication with express-session and PostgreSQL session store
+- **SSL Configuration**: Resolved SSL certificate issues by removing Neon WebSocket dependencies
 
 **Database Architecture**:
 - **12 Production Tables**: users, listings, bookings, reviews, messages, wishlist, services, reports, analytics, user_preferences, ui_components, component_usage
@@ -21,11 +22,20 @@ RooMe Zimbabwe is a full-stack accommodation booking platform built specifically
 - **21 Foreign Keys**: Full referential integrity maintained
 - **UUID Primary Keys**: Using `gen_random_uuid()` for all tables
 
+**Authentication Features Implemented**:
+- **User Registration**: Complete signup flow with scrypt password hashing
+- **User Login**: Session-based authentication with passport.js
+- **Password Security**: Secure password storage using Node.js crypto scrypt
+- **Session Management**: PostgreSQL-backed session storage with 7-day expiry
+- **Frontend Integration**: React hooks for authentication state management
+- **Route Protection**: Protected routes for authenticated users
+
 **Benefits Achieved**:
-- **Unlimited Scaling**: No storage restrictions like Replit DB
-- **Production Ready**: Enterprise-grade PostgreSQL with automated backups
-- **Real-time Capabilities**: Built-in subscriptions for live updates
-- **Global Performance**: Optimized hosting with CDN integration
+- **Simplified Infrastructure**: No external database dependencies
+- **Integrated Environment**: Native Replit database integration
+- **Security**: Production-ready authentication with secure session management
+- **Performance**: Direct PostgreSQL connection without WebSocket overhead
+- **Cost Efficiency**: Utilizing included Replit database services
 
 #### ✅ **Login & Signup Page Redesign**
 **Inspiration**: Modern dark mobile UI design with sleek rounded inputs
@@ -230,9 +240,9 @@ The backend follows a Node.js/Express architecture with the following design pat
 
 ## Data Storage
 
-**Primary Database**: PostgreSQL with Supabase hosting for enterprise-grade scalability and reliability. Key schema design decisions:
+**Primary Database**: PostgreSQL with Replit hosting for integrated development and deployment. Key schema design decisions:
 
-- **User Management**: Supports both local signup with bcrypt password hashing and Supabase Auth integration
+- **User Management**: Local signup with scrypt password hashing and session-based authentication
 - **Property Listings**: Flexible schema supporting multiple property types (boarding houses, lodges, hotels, apartments, guesthouses) with amenities, pricing, and location data
 - **Booking System**: Complete booking lifecycle with status tracking and guest-host relationships  
 - **Communication**: Built-in messaging system for host-guest communication
@@ -249,16 +259,18 @@ The backend follows a Node.js/Express architecture with the following design pat
 
 ## Authentication & Authorization
 
-**Replit OIDC Integration**: Leverages Replit's authentication system for secure user management:
+**Basic Username/Password Authentication**: Implements secure local authentication system:
 
+- **Password Security**: Scrypt hashing for password storage with unique salts
 - **Session Management**: Express-session with PostgreSQL storage for persistence
 - **Authorization**: Role-based access control (guest, host, admin) with route protection
-- **Security**: HTTPS-only cookies with proper CSRF protection
+- **Security**: Secure session cookies with httpOnly, sameSite protection
+- **Frontend Integration**: React context for authentication state management
 
 ## External Dependencies
 
-- **Supabase**: Enterprise PostgreSQL hosting with real-time capabilities, automated backups, and global CDN
-- **Replit Authentication**: OIDC-based authentication service for user management (with fallback to local auth)
+- **Replit Database**: Native PostgreSQL hosting with integrated development environment
+- **Session-based Authentication**: Local authentication service using passport.js and express-session
 - **Radix UI**: Accessible UI component primitives for consistent, compliant user interfaces
 - **Tailwind CSS**: Utility-first CSS framework for rapid UI development and responsive design
 - **TanStack Query**: Server state management and caching with optimistic updates

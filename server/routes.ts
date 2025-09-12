@@ -11,6 +11,10 @@ import {
   insertUiComponentSchema,
   insertComponentUsageSchema,
   createGuestUserSchema,
+  registerSchema,
+  loginSchema,
+  checkEmailSchema,
+  completeSignupSchema,
   type CreateGuestUser,
 } from "@shared/schema";
 import { z } from "zod";
@@ -23,13 +27,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Email availability check (without creating account)
   app.post('/api/auth/check-email', async (req, res) => {
     try {
-      const { email } = req.body;
-      
-      if (!email) {
+      const validationResult = checkEmailSchema.safeParse(req.body);
+      if (!validationResult.success) {
         return res.status(400).json({
-          error: "Email is required"
+          error: "Validation failed",
+          details: validationResult.error.errors
         });
       }
+      
+      const { email } = validationResult.data;
       
       // Check if user exists with this email
       const existingUser = await storage.getUserByEmail(email);
@@ -52,15 +58,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Complete signup endpoint (creates account with all data from all stages)
   app.post('/api/auth/complete-signup', async (req, res) => {
     try {
-      const { fullName, email, password, phoneNumber, city, address, preferences } = req.body;
-      
-      // Validate required fields
-      if (!fullName || !email || !password) {
+      const validationResult = completeSignupSchema.safeParse(req.body);
+      if (!validationResult.success) {
         return res.status(400).json({
-          error: "Missing required fields",
-          message: "Full name, email, and password are required"
+          error: "Validation failed",
+          details: validationResult.error.errors
         });
       }
+      
+      const { fullName, email, password, phoneNumber, city, address, preferences } = validationResult.data;
       
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(email);

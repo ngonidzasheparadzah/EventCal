@@ -10,6 +10,6 @@ if (!process.env.DATABASE_URL) {
 
 export const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
-  ssl: false // Disable SSL since we're using local Replit database
+  ssl: process.env.DATABASE_SSL === 'true' ? true : false // Configurable SSL setting
 });
 export const db = drizzle({ client: pool, schema });

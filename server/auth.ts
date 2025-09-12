@@ -6,7 +6,7 @@ import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
-import { User as SelectUser } from "@shared/schema";
+import { User as SelectUser, registerSchema, loginSchema } from "@shared/schema";
 
 declare global {
   namespace Express {
@@ -32,6 +32,9 @@ async function comparePasswords(supplied: string, stored: string) {
 export function setupAuth(app: Express) {
   const sessionSecret = process.env.SESSION_SECRET;
   if (!sessionSecret) {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('SESSION_SECRET environment variable is required in production');
+    }
     console.warn('WARNING: SESSION_SECRET not set. Using fallback key for development only.');
   }
 
@@ -59,6 +62,12 @@ export function setupAuth(app: Express) {
       { usernameField: 'email', passwordField: 'password' }, // Use email as username
       async (email, password, done) => {
         try {
+          // Validate login credentials format
+          const validationResult = loginSchema.safeParse({ email, password });
+          if (!validationResult.success) {
+            return done(null, false);
+          }
+          
           const user = await storage.getUserByEmail(email);
           if (!user || !user.passwordHash || !(await comparePasswords(password, user.passwordHash))) {
             return done(null, false);
@@ -84,11 +93,15 @@ export function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
-      const { email, password, firstName, lastName } = req.body;
-      
-      if (!email || !password) {
-        return res.status(400).json({ message: "Email and password are required" });
+      const validationResult = registerSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: "Validation failed",
+          errors: validationResult.error.errors
+        });
       }
+      
+      const { email, password, firstName, lastName } = validationResult.data;
 
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {

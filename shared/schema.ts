@@ -13,6 +13,7 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
+import { z } from "zod";
 
 // User storage table (supports both local signup and Supabase Auth)
 export const users = pgTable("users", {
@@ -432,6 +433,39 @@ export const insertUiComponentSchema = createInsertSchema(uiComponents).omit({
 export const insertComponentUsageSchema = createInsertSchema(componentUsage).omit({
   id: true,
   createdAt: true,
+});
+
+// Auth validation schemas
+export const registerSchema = z.object({
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(8, "Password must be at least 8 characters").max(100, "Password too long"),
+  firstName: z.string().min(1, "First name is required").max(50, "First name too long").optional(),
+  lastName: z.string().min(1, "Last name is required").max(50, "Last name too long").optional(),
+});
+
+export const loginSchema = z.object({
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(1, "Password is required"),
+});
+
+export const checkEmailSchema = z.object({
+  email: z.string().email("Invalid email format"),
+});
+
+export const completeSignupSchema = z.object({
+  fullName: z.string().min(1, "Full name is required").max(100, "Full name too long"),
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(8, "Password must be at least 8 characters").max(100, "Password too long"),
+  phoneNumber: z.string().optional(),
+  city: z.string().optional(),
+  address: z.string().optional(),
+  preferences: z.object({
+    preferredAmenities: z.array(z.string()).optional(),
+    accommodationLookingFor: z.string().optional(),
+    roommatePreferences: z.array(z.string()).optional(),
+    hobbies: z.array(z.string()).optional(),
+    occupation: z.string().optional(),
+  }).optional(),
 });
 
 // Types
