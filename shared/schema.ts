@@ -117,6 +117,25 @@ export const messages = pgTable("messages", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Anonymous session tracking for non-authenticated users
+export const anonymousSessions = pgTable("anonymous_sessions", {
+  sessionId: varchar("session_id").primaryKey().default(sql`gen_random_uuid()`),
+  userAgent: text("user_agent"),
+  ipAddress: varchar("ip_address"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Anonymous event tracking for non-authenticated users
+export const anonymousEvents = pgTable("anonymous_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  sessionId: varchar("session_id").notNull().references(() => anonymousSessions.sessionId),
+  eventType: varchar("event_type").notNull(), // page_view, property_view, search, etc.
+  eventData: jsonb("event_data").default({}),
+  page: varchar("page"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Reviews
 export const reviews = pgTable("reviews", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),

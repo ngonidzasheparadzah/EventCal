@@ -2,6 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated, hashPassword } from "./auth";
+import { publicRoutes } from "./public-routes";
+import { appRoutes } from "./app-routes";
 import { 
   insertListingSchema, 
   insertBookingSchema, 
@@ -24,6 +26,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware - using basic auth integration
   setupAuth(app);
 
+  // ===== NEW SEPARATED API ARCHITECTURE =====
+  // Mount separated route modules for clean architecture
+  app.use('/api/v1/public', publicRoutes);  // Public routes - no authentication required
+  app.use('/api/v1/app', appRoutes);        // App routes - authentication required
+  
+  console.log('🚀 Route separation implemented:');
+  console.log('  📍 Public API: /api/v1/public/* (no auth required)');
+  console.log('  🔒 App API: /api/v1/app/* (authentication required)');
+  console.log('  🔄 Legacy API: /api/* (backward compatibility)');
+
+  // ===== LEGACY ROUTES (for backward compatibility) =====
   // Email availability check (without creating account)
   app.post('/api/auth/check-email', async (req, res) => {
     try {
@@ -180,9 +193,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Get user endpoint
-  app.get('/api/user/:userId', async (req, res) => {
+  // SECURITY FIX: Legacy user endpoint now requires authentication
+  app.get('/api/user/:userId', isAuthenticated, async (req: any, res) => {
     try {
       const { userId } = req.params;
+      const requestingUserId = req.user.claims.sub;
+      
+      // Security check: users can only access their own data
+      if (userId !== requestingUserId) {
+        return res.status(403).json({
+          error: "Forbidden",
+          message: "You can only access your own user data"
+        });
+      }
+      
       const user = await storage.getUser(userId);
       
       if (!user) {
@@ -290,7 +314,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         maxGuests: req.query.maxGuests ? parseInt(req.query.maxGuests as string) : undefined,
       };
       
-      const listings = await storage.getListings(filters);
+      const listings = await storage.getPublicListings(filters);
       res.json(listings);
     } catch (error) {
       console.error("Error fetching listings:", error);

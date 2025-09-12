@@ -61,6 +61,11 @@ export interface IStorage {
   updateUserVerificationStatus(authId: string, type: 'email' | 'phone', verified: boolean): Promise<User>;
   updateUserSignInTime(authId: string): Promise<void>;
   
+  // Public data operations (read-only views)
+  getPublicListings(filters?: any): Promise<Listing[]>;
+  getPublicServices(filters?: any): Promise<Service[]>;
+  trackAnonymousEvent(eventData: { sessionId: string; eventType: string; eventData: any; page: string | null }): Promise<void>;
+  
   // Listing operations
   getListings(filters?: any): Promise<Listing[]>;
   getListing(id: string): Promise<Listing | undefined>;
@@ -68,6 +73,7 @@ export interface IStorage {
   updateListing(id: string, listing: Partial<InsertListing>): Promise<Listing>;
   deleteListing(id: string): Promise<void>;
   getListingsByHost(hostId: string): Promise<Listing[]>;
+  getUserListings(hostId: string): Promise<Listing[]>;
   incrementViewCount(id: string): Promise<void>;
   
   // Booking operations
@@ -308,6 +314,112 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Listing operations
+  // Public data methods (read-only views for unauthenticated users)
+  async getPublicListings(filters?: any): Promise<Listing[]> {
+    // Query the public_listings view for read-only access
+    const whereClauses = [];
+    const params = [];
+    let paramIndex = 1;
+    
+    if (filters?.city) {
+      whereClauses.push(`city ILIKE $${paramIndex}`);
+      params.push(`%${filters.city}%`);
+      paramIndex++;
+    }
+    if (filters?.propertyType) {
+      whereClauses.push(`property_type = $${paramIndex}`);
+      params.push(filters.propertyType);
+      paramIndex++;
+    }
+    if (filters?.minPrice !== undefined) {
+      whereClauses.push(`price_per_night >= $${paramIndex}`);
+      params.push(filters.minPrice);
+      paramIndex++;
+    }
+    if (filters?.maxPrice !== undefined) {
+      whereClauses.push(`price_per_night <= $${paramIndex}`);
+      params.push(filters.maxPrice);
+      paramIndex++;
+    }
+    if (filters?.maxGuests !== undefined) {
+      whereClauses.push(`max_guests >= $${paramIndex}`);
+      params.push(filters.maxGuests);
+      paramIndex++;
+    }
+    
+    const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+    const query = `SELECT * FROM public_listings ${whereClause} ORDER BY created_at DESC`;
+    
+    const result = await pool.query(query, params);
+    return result.rows as Listing[];
+  }
+
+  async getPublicServices(filters?: any): Promise<Service[]> {
+    // Query the public_services view for read-only access
+    const whereClauses = [];
+    const params = [];
+    let paramIndex = 1;
+    
+    if (filters?.category) {
+      whereClauses.push(`category = $${paramIndex}`);
+      params.push(filters.category);
+      paramIndex++;
+    }
+    if (filters?.location) {
+      whereClauses.push(`location = $${paramIndex}`);
+      params.push(filters.location);
+      paramIndex++;
+    }
+    
+    const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+    const query = `SELECT * FROM public_services ${whereClause} ORDER BY created_at DESC`;
+    
+    const result = await pool.query(query, params);
+    return result.rows as Service[];
+  }
+
+  async trackAnonymousEvent(eventData: { sessionId: string; eventType: string; eventData: any; page: string | null }): Promise<void> {
+    // Insert into anonymous_events table
+    await pool.query(`
+      INSERT INTO anonymous_events (session_id, event_type, event_data, page) 
+      VALUES ($1, $2, $3, $4)
+    `, [eventData.sessionId, eventData.eventType, JSON.stringify(eventData.eventData), eventData.page]);
+  }
+
+  // Create anonymous session for tracking
+  async createAnonymousSession(sessionData: { fingerprint?: string; userAgent?: string; ip?: string }): Promise<{ sessionId: string }> {
+    const result = await pool.query(`
+      INSERT INTO anonymous_sessions (fingerprint, user_agent, ip_address) 
+      VALUES ($1, $2, $3)
+      RETURNING id
+    `, [sessionData.fingerprint || null, sessionData.userAgent || null, sessionData.ip || null]);
+    
+    return { sessionId: result.rows[0].id };
+  }
+
+  // Get user bookings (for authenticated app routes)
+  async getUserBookings(userId: string): Promise<Booking[]> {
+    const userBookings = await db
+      .select()
+      .from(bookings)
+      .where(eq(bookings.guestId, userId))
+      .orderBy(desc(bookings.createdAt));
+    return userBookings;
+  }
+
+  // Get user messages (for authenticated app routes)
+  async getUserMessages(userId: string): Promise<Message[]> {
+    const userMessages = await db
+      .select()
+      .from(messages)
+      .where(or(
+        eq(messages.senderId, userId),
+        eq(messages.receiverId, userId)
+      ))
+      .orderBy(desc(messages.createdAt));
+    return userMessages;
+  }
+
   async getListings(filters?: any): Promise<Listing[]> {
     let query = db.select().from(listings).where(eq(listings.isActive, true));
     
@@ -357,6 +469,10 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(listings)
       .where(eq(listings.hostId, hostId))
       .orderBy(desc(listings.createdAt));
+  }
+
+  async getUserListings(hostId: string): Promise<Listing[]> {
+    return await this.getListingsByHost(hostId);
   }
 
   async incrementViewCount(id: string): Promise<void> {
