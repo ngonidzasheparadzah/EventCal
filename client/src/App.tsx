@@ -42,6 +42,7 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={Home} />
+          <Route path="/browse" component={SearchResults} />
           <Route path="/property/:id" component={PropertyDetails} />
           <Route path="/host/dashboard" component={HostDashboard} />
           <Route path="/search" component={SearchResults} />
