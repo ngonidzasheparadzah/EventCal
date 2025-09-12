@@ -10,8 +10,8 @@ import MobileNav from "@/components/layout/mobile-nav";
 import PropertyCard from "@/components/property/property-card";
 import SearchWidget from "@/components/search/search-widget";
 import FilterModal from "@/components/search/filter-modal";
-import { SearchFilters, Listing } from "@/types";
-import type { Listing as SchemaListing } from "@shared/schema";
+import { SearchFilters } from "@/types";
+import type { Listing } from "@shared/schema";
 import { Filter, MapPin, SlidersHorizontal } from "lucide-react";
 
 export default function SearchResults() {
@@ -51,8 +51,8 @@ export default function SearchResults() {
     return params.toString();
   };
 
-  const { data: listings = [], isLoading } = useQuery<SchemaListing[]>({
-    queryKey: ["/api/listings/search", buildQueryParams()],
+  const { data: listings = [], isLoading } = useQuery<Listing[]>({
+    queryKey: [`/api/listings/search?${buildQueryParams()}`],
     retry: false,
   });
 
@@ -208,7 +208,7 @@ export default function SearchResults() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {listings.map((listing: Listing) => (
+            {listings.map((listing) => (
               <PropertyCard 
                 key={listing.id} 
                 listing={listing}
