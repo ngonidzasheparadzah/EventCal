@@ -315,7 +315,7 @@ export default function GuestSignup() {
           {/* Not Now Link */}
           <div className="text-center mt-6">
             <button 
-              onClick={() => setLocation('/home')}
+              onClick={() => setLocation('/browse')}
               className="text-gray-600 font-medium hover:underline text-sm"
               data-testid="button-not-now"
             >

@@ -20,6 +20,7 @@ import WebsiteType from "@/pages/website-type";
 import GuestSignup from "@/pages/guest-signup";
 import GuestContactVerification from "@/pages/guest-contact-verification";
 import GuestPreferences from "@/pages/guest-preferences";
+import BrowsePage from "@/pages/browse";
 import OnboardingEntry from "@/components/onboarding/OnboardingEntry";
 
 function Router() {
@@ -35,6 +36,7 @@ function Router() {
           <Route path="/guest-contact-verification" component={GuestContactVerification} />
           <Route path="/guest-preferences" component={GuestPreferences} />
           <Route path="/landing" component={Landing} />
+          <Route path="/browse" component={BrowsePage} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/auth/verify" component={EmailVerificationPage} />
           <Route path="/auth/reset-password" component={PasswordResetPage} />
