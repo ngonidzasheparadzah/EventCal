@@ -34,6 +34,8 @@ function Router() {
           <Route path="/guest-signup" component={GuestSignup} />
           <Route path="/guest-contact-verification" component={GuestContactVerification} />
           <Route path="/guest-preferences" component={GuestPreferences} />
+          <Route path="/browse" component={SearchResults} />
+          <Route path="/search" component={SearchResults} />
           <Route path="/landing" component={Landing} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/auth/verify" component={EmailVerificationPage} />

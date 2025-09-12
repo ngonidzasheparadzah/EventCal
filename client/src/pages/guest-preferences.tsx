@@ -2,15 +2,11 @@ import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import { ChevronLeft, X, Plus } from 'lucide-react';
 import { useOnboarding } from '@/contexts/OnboardingContext';
-import { useMutation } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
 
 export default function GuestPreferences() {
   const [, setLocation] = useLocation();
-  const { state, dispatch, validateStep } = useOnboarding();
-  const [isNavigating, setIsNavigating] = useState(false);
+  const { state, dispatch } = useOnboarding();
   const [newHobby, setNewHobby] = useState('');
-  const [errors, setErrors] = useState<{ general?: string }>({});
 
   // Amenity options
   const amenityOptions = [
@@ -137,122 +133,11 @@ export default function GuestPreferences() {
     });
   };
 
-  // API mutation to save user preferences
-  const savePreferencesMutation = useMutation({
-    mutationFn: async (preferences: {
-      preferredAmenities: string[];
-      accommodationLookingFor: string;
-      roommatePreferences: string[];
-      hobbies: string[];
-      occupation: string;
-    }) => {
-      const response = await fetch(`/api/user/${state.userId}/preferences`, {
-        method: 'POST',
-        body: JSON.stringify(preferences),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to save preferences');
-      }
-      
-      return await response.json();
-    },
-  });
 
-  // API mutation to update onboarding step
-  const updateOnboardingStepMutation = useMutation({
-    mutationFn: async (step: number) => {
-      const response = await fetch(`/api/user/${state.userId}/onboarding`, {
-        method: 'PATCH',
-        body: JSON.stringify({ step }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to update onboarding step');
-      }
-      
-      return await response.json();
-    },
-  });
 
-  const handleNext = async () => {
-    setIsNavigating(true);
-    
-    try {
-      // Create complete account with all collected data
-      const completeAccountData = {
-        // Stage 1 data
-        fullName: state.step1.fullName,
-        email: state.step1.email,
-        password: state.step1.password,
-        // Stage 2 data
-        phoneNumber: state.step2.phoneNumber,
-        city: state.step2.city,
-        address: state.step2.address,
-        // Stage 3 data
-        preferences: {
-          preferredAmenities: state.step3.preferredAmenities || [],
-          accommodationLookingFor: state.step3.accommodationLookingFor || '',
-          roommatePreferences: state.step3.roommatePreferences || [],
-          hobbies: state.step3.hobbies || [],
-          occupation: state.step3.occupation || '',
-        }
-      };
-
-      // Create complete account
-      const response = await fetch('/api/auth/complete-signup', {
-        method: 'POST',
-        body: JSON.stringify(completeAccountData),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        // Get the actual error message from server
-        const errorData = await response.json();
-        throw new Error(errorData.message || errorData.error || 'Failed to create account');
-      }
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        console.log('Complete account created successfully:', data.user);
-        
-        // Navigate to browse page to see listings
-        setLocation('/browse');
-      } else {
-        throw new Error(data.message || 'Failed to create account');
-      }
-      
-    } catch (error) {
-      console.error('Error completing signup:', error);
-      
-      // Show error message to user
-      let errorMessage = 'Failed to create account. Please try again.';
-      
-      if (error instanceof Response) {
-        try {
-          const errorData = await error.json();
-          errorMessage = errorData.message || errorData.error || errorMessage;
-        } catch {
-          errorMessage = `Error ${error.status}: Please try again.`;
-        }
-      } else if (error instanceof Error) {
-        errorMessage = error.message;
-      }
-      
-      // Set error state to show to user
-      setErrors({ general: errorMessage });
-    } finally {
-      setIsNavigating(false);
-    }
+  const handleNext = () => {
+    // Simply navigate to browse page - collect all data and continue to browse
+    setLocation('/browse');
   };
 
 
@@ -437,33 +322,16 @@ export default function GuestPreferences() {
         </div>
       </div>
 
-      {/* Error Display */}
-      {errors.general && (
-        <div className="p-4">
-          <div className="responsive-container max-w-sm">
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600 text-sm" data-testid="text-error-message">
-                {errors.general}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Action Button */}
       <div className="p-4">
         <div className="responsive-container max-w-sm">
           <button 
             onClick={handleNext}
-            disabled={isNavigating}
-            className={`w-full py-3 rounded-full text-white font-medium transition-all duration-200 ${
-              !isNavigating
-                ? 'bg-blue-500 hover:bg-blue-600 active:scale-95' 
-                : 'bg-gray-300 cursor-not-allowed'
-            }`}
-            data-testid="button-complete-signup"
+            className="w-full py-3 rounded-full text-white font-medium transition-all duration-200 bg-blue-500 hover:bg-blue-600 active:scale-95"
+            data-testid="button-continue-browse"
           >
-            {isNavigating ? 'Completing...' : 'Complete Sign Up'}
+            Continue to Browse
           </button>
           <p className="text-xs text-gray-500 text-center mt-2">
             All preferences are optional and can be updated later
