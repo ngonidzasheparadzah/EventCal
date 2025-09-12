@@ -1,8 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./auth";
-import bcrypt from 'bcryptjs';
+import { setupAuth, isAuthenticated, hashPassword } from "./auth";
 import { 
   insertListingSchema, 
   insertBookingSchema, 
@@ -16,16 +15,6 @@ import {
 } from "@shared/schema";
 import { z } from "zod";
 
-// Guest signup schema with validation
-const guestSignupSchema = z.object({
-  fullName: z.string().min(1, "Full name is required"),
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware - using basic auth integration
@@ -59,70 +48,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Guest signup endpoint (local authentication)
-  app.post('/api/auth/signup', async (req, res) => {
-    try {
-      const validatedData = guestSignupSchema.parse(req.body);
-      
-      // Check if a completed user already exists with this email
-      const existingUser = await storage.getUserByEmail(validatedData.email);
-      if (existingUser && existingUser.onboardingStep >= 4) {
-        return res.status(400).json({ 
-          error: "User already exists", 
-          message: "An account with this email already exists" 
-        });
-      }
-      
-      // If user exists but hasn't completed onboarding, delete the incomplete record
-      if (existingUser && existingUser.onboardingStep < 4) {
-        await storage.deleteUser(existingUser.id);
-      }
-      
-      // Hash password
-      const saltRounds = 12;
-      const passwordHash = await bcrypt.hash(validatedData.password, saltRounds);
-      
-      // Create user data
-      const [firstName, ...lastNameParts] = validatedData.fullName.trim().split(' ');
-      const lastName = lastNameParts.join(' ') || '';
-      
-      const userData: CreateGuestUser = {
-        email: validatedData.email,
-        firstName,
-        lastName,
-        role: 'guest',
-        signupMethod: 'local',
-        onboardingStep: 1,
-      };
-      
-      // Create user in database
-      const newUser = await storage.createGuestUser(userData, passwordHash);
-      
-      // Return user without sensitive data
-      const { passwordHash: _, ...userResponse } = newUser;
-      
-      res.status(201).json({
-        success: true,
-        message: "Account created successfully",
-        user: userResponse
-      });
-      
-    } catch (error) {
-      console.error("Signup error:", error);
-      
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({
-          error: "Validation failed",
-          details: error.errors
-        });
-      }
-      
-      res.status(500).json({
-        error: "Internal server error",
-        message: "Failed to create account"
-      });
-    }
-  });
 
   // Complete signup endpoint (creates account with all data from all stages)
   app.post('/api/auth/complete-signup', async (req, res) => {
@@ -147,8 +72,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Hash password
-      const saltRounds = 12;
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      const hashedPassword = await hashPassword(password);
       
       // Split full name into first and last name
       const [firstName, ...lastNameParts] = fullName.trim().split(' ');

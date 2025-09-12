@@ -30,11 +30,23 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
+  const sessionSecret = process.env.SESSION_SECRET;
+  if (!sessionSecret) {
+    console.warn('WARNING: SESSION_SECRET not set. Using fallback key for development only.');
+  }
+
   const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || 'fallback-secret-key-for-development',
+    secret: sessionSecret || 'dev-fallback-key-change-in-production',
     resave: false,
     saveUninitialized: false,
     store: storage.sessionStore,
+    cookie: {
+      secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+      httpOnly: true, // Prevent XSS attacks
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      sameSite: 'lax', // CSRF protection
+    },
+    name: 'sessionId', // Don't reveal session technology
   };
 
   app.set("trust proxy", 1);
