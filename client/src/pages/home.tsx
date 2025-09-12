@@ -6,11 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import Header from "@/components/layout/header";
-import Footer from "@/components/layout/footer";
-import MobileNav from "@/components/layout/mobile-nav";
-import EmailVerificationBanner from "@/components/email-verification-banner";
-import { PhoneVerificationBanner } from "@/components/phone-verification-banner";
 import PropertyCard from "@/components/property/property-card";
 import { SearchFilters, Listing } from "@/types";
 import type { Listing as SchemaListing } from "@shared/schema";
@@ -62,10 +57,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <EmailVerificationBanner />
-      <PhoneVerificationBanner />
+    <>
       
       {/* Hero Section */}
       <section className="relative bg-gradient-to-b from-primary/5 to-background py-12 md:py-20 hero-section">
@@ -256,8 +248,6 @@ export default function Home() {
         </div>
       </section>
 
-      <Footer />
-      <MobileNav />
-    </div>
+    </>
   );
 }

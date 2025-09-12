@@ -34,7 +34,7 @@ import {
   type InsertComponentUsage,
 } from "@shared/schema";
 import { db, pool } from "./db";
-import { eq, and, desc, asc, sql, ilike, gte, lte, inArray } from "drizzle-orm";
+import { eq, and, or, desc, asc, sql, ilike, gte, lte, inArray } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 
@@ -44,7 +44,7 @@ const PostgresSessionStore = connectPg(session);
 // Interface for storage operations
 export interface IStorage {
   // Session store for authentication
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
   
   // User operations (supports basic auth)
   getUser(id: string): Promise<User | undefined>;
@@ -145,7 +145,7 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   // Session store for authentication - referenced from javascript_auth_all_persistance integration
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 
   constructor() {
     this.sessionStore = new PostgresSessionStore({ pool, createTableIfMissing: true });
@@ -316,7 +316,7 @@ export class DatabaseStorage implements IStorage {
   // Listing operations
   // Public data methods (read-only views for unauthenticated users)
   async getPublicListings(filters?: any): Promise<Listing[]> {
-    // Query the public_listings view for read-only access
+    // Query the listings table for public access
     const whereClauses = [];
     const params = [];
     let paramIndex = 1;
@@ -348,14 +348,14 @@ export class DatabaseStorage implements IStorage {
     }
     
     const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
-    const query = `SELECT * FROM public_listings ${whereClause} ORDER BY created_at DESC`;
+    const query = `SELECT * FROM listings ${whereClause} ORDER BY created_at DESC`;
     
     const result = await pool.query(query, params);
     return result.rows as Listing[];
   }
 
   async getPublicServices(filters?: any): Promise<Service[]> {
-    // Query the public_services view for read-only access
+    // Query the services table for public access
     const whereClauses = [];
     const params = [];
     let paramIndex = 1;
@@ -372,7 +372,7 @@ export class DatabaseStorage implements IStorage {
     }
     
     const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
-    const query = `SELECT * FROM public_services ${whereClause} ORDER BY created_at DESC`;
+    const query = `SELECT * FROM services ${whereClause} ORDER BY created_at DESC`;
     
     const result = await pool.query(query, params);
     return result.rows as Service[];
@@ -421,25 +421,27 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getListings(filters?: any): Promise<Listing[]> {
-    let query = db.select().from(listings).where(eq(listings.isActive, true));
+    const conditions = [eq(listings.isActive, true)];
     
     if (filters?.city) {
-      query = query.where(eq(listings.city, filters.city));
+      conditions.push(eq(listings.city, filters.city));
     }
     if (filters?.propertyType) {
-      query = query.where(eq(listings.propertyType, filters.propertyType));
+      conditions.push(eq(listings.propertyType, filters.propertyType));
     }
     if (filters?.minPrice) {
-      query = query.where(gte(listings.pricePerNight, filters.minPrice));
+      conditions.push(gte(listings.pricePerNight, filters.minPrice));
     }
     if (filters?.maxPrice) {
-      query = query.where(lte(listings.pricePerNight, filters.maxPrice));
+      conditions.push(lte(listings.pricePerNight, filters.maxPrice));
     }
     if (filters?.maxGuests) {
-      query = query.where(gte(listings.maxGuests, filters.maxGuests));
+      conditions.push(gte(listings.maxGuests, filters.maxGuests));
     }
     
-    return await query.orderBy(desc(listings.createdAt));
+    return await db.select().from(listings)
+      .where(and(...conditions))
+      .orderBy(desc(listings.createdAt));
   }
 
   async getListing(id: string): Promise<Listing | undefined> {
@@ -525,7 +527,7 @@ export class DatabaseStorage implements IStorage {
     
     // Group by conversation and get latest message
     const grouped = conversations.reduce((acc, conv) => {
-      if (!acc[conv.conversationId] || conv.lastMessageTime > acc[conv.conversationId].lastMessageTime) {
+      if (!acc[conv.conversationId] || (conv.lastMessageTime && (!acc[conv.conversationId].lastMessageTime || conv.lastMessageTime > acc[conv.conversationId].lastMessageTime))) {
         acc[conv.conversationId] = conv;
       }
       return acc;
@@ -575,7 +577,7 @@ export class DatabaseStorage implements IStorage {
       await db
         .update(listings)
         .set({
-          rating: result[0].avgRating,
+          rating: result[0].avgRating ? sql`${result[0].avgRating}::decimal` : null,
           reviewCount: Number(result[0].count),
         })
         .where(eq(listings.id, listingId));
@@ -627,32 +629,31 @@ export class DatabaseStorage implements IStorage {
 
   // Search operations
   async searchListings(query: string, filters?: any): Promise<Listing[]> {
-    let dbQuery = db.select().from(listings)
-      .where(and(
-        eq(listings.isActive, true),
-        sql`(${listings.title} ILIKE ${`%${query}%`} OR ${listings.description} ILIKE ${`%${query}%`} OR ${listings.location} ILIKE ${`%${query}%`})`
-      ));
+    const conditions = [
+      eq(listings.isActive, true),
+      sql`(${listings.title} ILIKE ${`%${query}%`} OR ${listings.description} ILIKE ${`%${query}%`} OR ${listings.location} ILIKE ${`%${query}%`})`
+    ];
 
     if (filters?.city) {
-      dbQuery = dbQuery.where(eq(listings.city, filters.city));
+      conditions.push(eq(listings.city, filters.city));
     }
     if (filters?.propertyType && filters.propertyType.length > 0) {
-      dbQuery = dbQuery.where(inArray(listings.propertyType, filters.propertyType));
+      conditions.push(inArray(listings.propertyType, filters.propertyType));
     }
     if (filters?.minPrice) {
-      dbQuery = dbQuery.where(gte(listings.pricePerNight, filters.minPrice));
+      conditions.push(gte(listings.pricePerNight, filters.minPrice));
     }
     if (filters?.maxPrice) {
-      dbQuery = dbQuery.where(lte(listings.pricePerNight, filters.maxPrice));
+      conditions.push(lte(listings.pricePerNight, filters.maxPrice));
     }
 
-    return await dbQuery.orderBy(desc(listings.rating), desc(listings.createdAt));
+    return await db.select().from(listings)
+      .where(and(...conditions))
+      .orderBy(desc(listings.rating), desc(listings.createdAt));
   }
 
   // UI Components operations
   async getUIComponents(filters?: { category?: string; isActive?: boolean; isPublic?: boolean }): Promise<UiComponent[]> {
-    let query = db.select().from(uiComponents);
-    
     const conditions = [];
     if (filters?.category) {
       conditions.push(eq(uiComponents.category, filters.category));
@@ -665,10 +666,13 @@ export class DatabaseStorage implements IStorage {
     }
     
     if (conditions.length > 0) {
-      query = query.where(and(...conditions));
+      return await db.select().from(uiComponents)
+        .where(and(...conditions))
+        .orderBy(desc(uiComponents.createdAt));
+    } else {
+      return await db.select().from(uiComponents)
+        .orderBy(desc(uiComponents.createdAt));
     }
-    
-    return await query.orderBy(desc(uiComponents.createdAt));
   }
 
   async getUIComponent(id: string): Promise<UiComponent | undefined> {

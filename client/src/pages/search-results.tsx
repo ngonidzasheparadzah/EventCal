@@ -4,9 +4,6 @@ import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import Header from "@/components/layout/header";
-import Footer from "@/components/layout/footer";
-import MobileNav from "@/components/layout/mobile-nav";
 import PropertyCard from "@/components/property/property-card";
 import SearchWidget from "@/components/search/search-widget";
 import FilterModal from "@/components/search/filter-modal";
@@ -99,8 +96,7 @@ export default function SearchResults() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <>
       
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Search Widget */}
@@ -236,8 +232,6 @@ export default function SearchResults() {
         onApplyFilters={handleApplyFilters}
       />
 
-      <Footer />
-      <MobileNav />
-    </div>
+    </>
   );
 }
