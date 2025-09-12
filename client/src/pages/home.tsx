@@ -6,10 +6,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import PropertyCard from "@/components/property/property-card";
 import { SearchFilters, Listing } from "@/types";
 import type { Listing as SchemaListing } from "@shared/schema";
-import { Search, MapPin } from "lucide-react";
+import { Search, MapPin, Clock, Star, TrendingUp, Heart, ChevronRight } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 const ZIMBABWE_CITIES = [
   "Harare",
@@ -27,6 +29,7 @@ const ZIMBABWE_CITIES = [
 export default function Home() {
   const [, setLocation] = useLocation();
   const [searchFilters, setSearchFilters] = useState<SearchFilters>({});
+  const { user, isAuthenticated } = useAuth();
 
   const { data: listings = [], isLoading } = useQuery<SchemaListing[]>({
     queryKey: ["/api/listings"],
@@ -37,6 +40,12 @@ export default function Home() {
     queryKey: ["/api/services"],
     retry: false,
   });
+
+  // Get user's initials for avatar
+  const getUserInitials = (firstName?: string | null, lastName?: string | null) => {
+    const initials = `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
+    return initials || 'U';
+  };
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -49,120 +58,102 @@ export default function Home() {
   };
 
   const featuredListings = listings.slice(0, 8);
+  const recentlyViewedListings = listings.slice(0, 4); // Mock recently viewed - will be enhanced later
+  const recommendedListings = listings.slice(4, 8); // Mock recommendations - will be enhanced later
+  
   const propertyTypeStats = [
-    { id: "boarding_house", name: "Boarding Houses", count: listings.filter((l: SchemaListing) => l.propertyType === 'boarding_house').length },
-    { id: "private_room", name: "Private Rooms", count: listings.filter((l: SchemaListing) => l.propertyType === 'private_room').length },
-    { id: "lodge", name: "Lodges", count: listings.filter((l: SchemaListing) => l.propertyType === 'lodge').length },
-    { id: "hotel", name: "Hotels", count: listings.filter((l: SchemaListing) => l.propertyType === 'hotel').length }
+    { id: "boarding_house", name: "Boarding Houses", count: listings.filter((l: SchemaListing) => l.propertyType === 'boarding_house').length, description: "Budget-friendly shared accommodations" },
+    { id: "private_room", name: "Private Rooms", count: listings.filter((l: SchemaListing) => l.propertyType === 'private_room').length, description: "Your own space with privacy" },
+    { id: "lodge", name: "Lodges", count: listings.filter((l: SchemaListing) => l.propertyType === 'lodge').length, description: "Comfortable mid-range stays" },
+    { id: "hotel", name: "Hotels", count: listings.filter((l: SchemaListing) => l.propertyType === 'hotel').length, description: "Full-service accommodations" }
   ];
 
   return (
     <>
-      {/* Hero Section - Completely redesigned */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 py-16 md:py-24">
-        {/* Background decoration */}
-        <div className="absolute inset-0 bg-grid-slate-100/25 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]" />
-        <div className="absolute top-0 right-0 -mt-4 -mr-4 h-72 w-72 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 blur-3xl" />
-        <div className="absolute bottom-0 left-0 -mb-4 -ml-4 h-72 w-72 rounded-full bg-gradient-to-tr from-accent/20 to-primary/20 blur-3xl" />
-        
-        <div className="relative responsive-container">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-sm font-medium text-primary mb-6">
-              🏠 Welcome to Zimbabwe's Premier Accommodation Platform
-            </div>
-            
-            <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-primary via-foreground to-primary bg-clip-text text-transparent mb-6 leading-tight">
-              Find Your Perfect
-              <br />
-              Stay in <span className="text-primary">Zimbabwe</span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto font-light">
-              From cozy boarding houses in Harare to luxury lodges in Victoria Falls. 
-              <br className="hidden md:block" />
-              Discover authentic Zimbabwean hospitality at unbeatable prices.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button 
-                size="lg" 
-                className="text-lg px-8 py-6 rounded-full shadow-lg hover:shadow-xl transition-all"
-                onClick={() => setLocation('/search')}
-                data-testid="button-start-exploring"
-              >
-                <Search className="w-5 h-5 mr-2" />
-                Start Exploring
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="text-lg px-8 py-6 rounded-full border-2 hover:bg-primary hover:text-primary-foreground transition-all"
-                onClick={() => {
-                  const featuredElement = document.getElementById('featured-listings');
-                  if (featuredElement) {
-                    featuredElement.scrollIntoView({ behavior: 'smooth' });
-                  } else {
-                    setLocation('/search');
-                  }
-                }}
-                data-testid="button-view-featured"
-              >
-                View Featured Stays
-              </Button>
+      {/* Personalized Guest Dashboard */}
+      <section className="bg-background py-6 md:py-8">
+        <div className="responsive-container">
+          {/* Personalized Greeting */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-4">
+              <Avatar className="w-12 h-12 md:w-16 md:h-16">
+                <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-lg">
+                  {getUserInitials(user?.firstName, user?.lastName)}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground" data-testid="greeting-title">
+                  Hi, {user?.firstName || 'Guest'}! 👋
+                </h1>
+                <p className="text-muted-foreground text-sm md:text-base">
+                  Ready to find your perfect stay in Zimbabwe?
+                </p>
+              </div>
             </div>
           </div>
-          
-          {/* Enhanced Search Widget */}
-          <Card className="max-w-5xl mx-auto shadow-2xl border-0 bg-card/80 backdrop-blur-sm">
-            <CardContent className="p-8">
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-semibold text-foreground mb-2">Where will you stay next?</h3>
-                <p className="text-muted-foreground">Search thousands of verified accommodations across Zimbabwe</p>
+        </div>
+      </section>
+
+      {/* Continue Search Section */}
+      <section className="bg-gradient-to-r from-primary/5 to-accent/5 py-6">
+        <div className="responsive-container">
+          <Card className="shadow-lg border-0 bg-card/90 backdrop-blur-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-foreground">Continue your search</h2>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setLocation('/search')}
+                  data-testid="button-continue-search-all"
+                >
+                  View all <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground flex items-center">
+                  <label className="text-sm font-medium text-foreground flex items-center">
                     <MapPin className="w-4 h-4 mr-2 text-primary" />
-                    Destination
+                    Where to?
                   </label>
                   <Select onValueChange={(value) => setSearchFilters({...searchFilters, city: value})}>
-                    <SelectTrigger className="h-12 border-2 focus:border-primary" data-testid="select-city">
-                      <SelectValue placeholder="Choose your city" />
+                    <SelectTrigger className="h-10 border focus:border-primary" data-testid="select-city-continue">
+                      <SelectValue placeholder="Choose destination" />
                     </SelectTrigger>
                     <SelectContent>
                       {ZIMBABWE_CITIES.map(city => (
-                        <SelectItem key={city} value={city} className="text-base">{city}</SelectItem>
+                        <SelectItem key={city} value={city}>{city}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">Check In</label>
+                  <label className="text-sm font-medium text-foreground">Check in</label>
                   <Input 
                     type="date" 
-                    className="h-12 border-2 focus:border-primary"
-                    data-testid="input-checkin"
+                    className="h-10 border focus:border-primary"
+                    data-testid="input-checkin-continue"
                     onChange={(e) => setSearchFilters({...searchFilters, checkIn: e.target.value})}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">Check Out</label>
+                  <label className="text-sm font-medium text-foreground">Check out</label>
                   <Input 
                     type="date" 
-                    className="h-12 border-2 focus:border-primary"
-                    data-testid="input-checkout"
+                    className="h-10 border focus:border-primary"
+                    data-testid="input-checkout-continue"
                     onChange={(e) => setSearchFilters({...searchFilters, checkOut: e.target.value})}
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <label className="text-sm font-semibold text-foreground">Guests</label>
+                  <label className="text-sm font-medium text-foreground">Guests</label>
                   <Select onValueChange={(value) => setSearchFilters({...searchFilters, maxGuests: parseInt(value)})}>
-                    <SelectTrigger className="h-12 border-2 focus:border-primary" data-testid="select-guests">
-                      <SelectValue placeholder="How many?" />
+                    <SelectTrigger className="h-10 border focus:border-primary" data-testid="select-guests-continue">
+                      <SelectValue placeholder="Add guests" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="1">1 guest</SelectItem>
@@ -175,72 +166,157 @@ export default function Home() {
               </div>
               
               <Button 
-                className="w-full mt-8 h-14 text-lg font-semibold rounded-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl transition-all" 
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground" 
                 onClick={handleSearch}
-                data-testid="button-search"
+                data-testid="button-continue-search"
               >
                 <Search className="w-5 h-5 mr-2" />
-                Search Amazing Places
+                Search Properties
               </Button>
             </CardContent>
           </Card>
         </div>
       </section>
 
-      {/* Property Types - Enhanced */}
-      <section className="py-20 bg-gradient-to-b from-background to-secondary/30">
+      {/* Recently Viewed Homes */}
+      {recentlyViewedListings.length > 0 && (
+        <section className="py-8 bg-background">
+          <div className="responsive-container">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <Clock className="w-6 h-6 text-primary" />
+                <h2 className="text-2xl font-bold text-foreground">Recently Viewed</h2>
+              </div>
+              <Button 
+                variant="ghost" 
+                onClick={() => setLocation('/search')}
+                data-testid="button-view-all-recent"
+              >
+                View all <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {recentlyViewedListings.map((listing: SchemaListing) => (
+                <PropertyCard 
+                  key={listing.id} 
+                  listing={listing} 
+                  onClick={() => setLocation(`/property/${listing.id}`)}
+                  showWishlistButton={true}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Recommended for You */}
+      {recommendedListings.length > 0 && (
+        <section className="py-8 bg-secondary/30">
+          <div className="responsive-container">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <TrendingUp className="w-6 h-6 text-accent" />
+                <h2 className="text-2xl font-bold text-foreground">Recommended for You</h2>
+              </div>
+              <Button 
+                variant="ghost" 
+                onClick={() => setLocation('/search')}
+                data-testid="button-view-all-recommended"
+              >
+                View all <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {recommendedListings.map((listing: SchemaListing) => (
+                <PropertyCard 
+                  key={listing.id} 
+                  listing={listing} 
+                  onClick={() => setLocation(`/property/${listing.id}`)}
+                  showWishlistButton={true}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Browse by Category */}
+      <section className="py-12 bg-background">
         <div className="responsive-container">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6">
-              Explore Your Perfect <span className="text-primary">Home Away From Home</span>
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Whether you're looking for budget-friendly boarding houses or luxury safari lodges, 
-              we have the perfect accommodation for every traveler and budget.
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-foreground mb-2">Browse by category</h2>
+            <p className="text-muted-foreground">
+              Find the perfect accommodation type for your needs and budget
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {propertyTypeStats.map((type, index) => (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {propertyTypeStats.map((type) => (
               <Card 
                 key={type.id} 
-                className="group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 cursor-pointer transform hover:-translate-y-2 bg-gradient-to-br from-card to-card/80"
-                data-testid={`card-property-type-${type.id}`}
+                className="group cursor-pointer border hover:border-primary transition-all duration-300 hover:shadow-md"
+                data-testid={`card-category-${type.id}`}
                 onClick={() => setLocation(`/search?propertyType=${type.id}`)}
               >
-                <CardContent className="p-8 text-center relative z-10">
-                  <div className="relative mb-6">
-                    <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl mx-auto flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <MapPin className="w-10 h-10 text-primary" />
+                <CardContent className="p-6 text-center">
+                  <div className="mb-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl mx-auto flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                      <MapPin className="w-8 h-8 text-primary" />
                     </div>
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary/20 rounded-full animate-pulse" />
                   </div>
                   
-                  <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
                     {type.name}
                   </h3>
-                  <p className="text-muted-foreground mb-4">
-                    {type.count} amazing options
+                  <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
+                    {type.description}
                   </p>
-                  <div className="w-12 h-1 bg-gradient-to-r from-primary to-accent mx-auto rounded-full" />
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>{type.count} available</span>
+                    <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
                 </CardContent>
-                
-                {/* Hover effect background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </Card>
             ))}
           </div>
-          
-          <div className="text-center mt-12">
+        </div>
+      </section>
+
+      {/* Popular Destinations */}
+      <section className="py-12 bg-secondary/30">
+        <div className="responsive-container">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">Popular destinations</h2>
+              <p className="text-muted-foreground">Discover Zimbabwe's most visited cities</p>
+            </div>
             <Button 
-              variant="outline" 
-              size="lg"
-              className="rounded-full px-8 py-6 text-lg border-2 hover:bg-primary hover:text-primary-foreground transition-all"
+              variant="ghost" 
               onClick={() => setLocation('/search')}
-              data-testid="button-view-all-property-types"
+              data-testid="button-view-all-destinations"
             >
-              View All Property Types
+              View all <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {["Harare", "Bulawayo", "Victoria Falls", "Mutare"].map((city) => (
+              <Card 
+                key={city}
+                className="group cursor-pointer border hover:border-primary transition-all duration-300 hover:shadow-md"
+                data-testid={`card-city-${city.toLowerCase()}`}
+                onClick={() => setLocation(`/search?city=${city}`)}
+              >
+                <CardContent className="p-4">
+                  <h4 className="font-semibold text-foreground group-hover:text-primary transition-colors">{city}</h4>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {listings.filter(l => l.city.toLowerCase().includes(city.toLowerCase())).length} properties
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
